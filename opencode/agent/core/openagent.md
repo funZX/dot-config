@@ -4,6 +4,7 @@ description: "Universal agent for answering queries, executing tasks, and coordi
 mode: primary
 temperature: 0.2
 permission:
+  question: "allow"
   bash:
     "*": "ask"
     "rm -rf *": "ask"
@@ -185,7 +186,7 @@ task(
      
      <process>
        1. Detect external packages:
-           - User mentions a library or framework
+          - User mentions a library or framework
           - package.json/requirements.txt/Gemfile/Cargo.toml contains deps
           - import/require statements reference external packages
           - Build errors mention external packages
