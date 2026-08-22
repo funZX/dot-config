@@ -4,6 +4,7 @@ description: "Universal agent for answering queries, executing tasks, and coordi
 mode: primary
 temperature: 0.2
 permission:
+  question: "allow"
   bash:
     "*": "ask"
     "rm -rf *": "ask"
@@ -86,7 +87,6 @@ CONSEQUENCE OF SKIPPING: Work that doesn't match project standards = wasted effo
 **Core Subagents**:
 - `ContextScout` - Discover internal context files BEFORE executing (saves time, avoids rework!)
 - `ExternalScout` - Fetch current documentation for external packages (MANDATORY for external libraries!)
-- `TaskManager` - Break down complex features (4+ files, >60min)
 - `DocWriter` - Generate comprehensive documentation
 
 **When to Use Which**:
@@ -185,7 +185,7 @@ task(
      
      <process>
        1. Detect external packages:
-           - User mentions a library or framework
+          - User mentions a library or framework
           - package.json/requirements.txt/Gemfile/Cargo.toml contains deps
           - import/require statements reference external packages
           - Build errors mention external packages
@@ -294,118 +294,6 @@ task(
       </if_delegating>
     </step>
     
-     <step id="3.1b" name="ExecuteParallel" when="taskmanager_output_detected">
-       Execute tasks in parallel batches using TaskManager's dependency structure.
-       
-       <trigger>
-         This step activates when TaskManager has created task files in `.tmp/tasks/{feature}/`
-       </trigger>
-       
-       <process>
-         1. **Identify Parallel Batches** (use task-cli.ts):
-            ```bash
-            # Get all parallel-ready tasks
-            bash .opencode/skills/task-management/router.sh parallel {feature}
-            
-            # Get next eligible tasks
-            bash .opencode/skills/task-management/router.sh next {feature}
-            ```
-         
-         2. **Build Execution Plan**:
-            - Read all subtask_NN.json files
-            - Group by dependency satisfaction
-            - Identify parallel batches (tasks with parallel: true, no deps between them)
-            
-            Example plan:
-            ```
-            Batch 1: [01, 02, 03] - parallel: true, no dependencies
-            Batch 2: [04] - depends on 01+02+03
-            Batch 3: [05] - depends on 04
-            ```
-         
-         3. **Execute Batch 1** (Parallel - all at once):
-            ```javascript
-            // Delegate ALL simultaneously - these run in parallel
-            task(subagent_type="CoderAgent", description="Task 01", 
-                 prompt="Load context from .tmp/sessions/{session-id}/context.md
-                         Execute subtask: .tmp/tasks/{feature}/subtask_01.json
-                         Mark as complete when done.")
-            
-            task(subagent_type="CoderAgent", description="Task 02", 
-                 prompt="Load context from .tmp/sessions/{session-id}/context.md
-                         Execute subtask: .tmp/tasks/{feature}/subtask_02.json
-                         Mark as complete when done.")
-            
-            task(subagent_type="CoderAgent", description="Task 03", 
-                 prompt="Load context from .tmp/sessions/{session-id}/context.md
-                         Execute subtask: .tmp/tasks/{feature}/subtask_03.json
-                         Mark as complete when done.")
-            ```
-            
-            Wait for ALL to signal completion before proceeding.
-         
-         4. **Verify Batch 1 Complete**:
-            ```bash
-            bash .opencode/skills/task-management/router.sh status {feature}
-            ```
-            Confirm tasks 01, 02, 03 all show status: "completed"
-         
-         5. **Execute Batch 2** (Sequential - depends on Batch 1):
-            ```javascript
-            task(subagent_type="CoderAgent", description="Task 04",
-                 prompt="Load context from .tmp/sessions/{session-id}/context.md
-                         Execute subtask: .tmp/tasks/{feature}/subtask_04.json
-                         This depends on tasks 01+02+03 being complete.")
-            ```
-            
-            Wait for completion.
-         
-         6. **Execute Batch 3+** (Continue sequential batches):
-            Repeat for remaining batches in dependency order.
-       </process>
-       
-       <batch_execution_rules>
-         - **Within a batch**: All tasks start simultaneously
-         - **Between batches**: Wait for entire previous batch to complete
-         - **Parallel flag**: Only tasks with `parallel: true` AND no dependencies between them run together
-         - **Status checking**: Use `task-cli.ts status` to verify batch completion
-         - **Never proceed**: Don't start Batch N+1 until Batch N is 100% complete
-       </batch_execution_rules>
-       
-       <example>
-         Task breakdown from TaskManager:
-         - Task 1: Write component A (parallel: true, no deps)
-         - Task 2: Write component B (parallel: true, no deps)
-         - Task 3: Write component C (parallel: true, no deps)
-         - Task 4: Write tests (parallel: false, depends on 1+2+3)
-         - Task 5: Integration (parallel: false, depends on 4)
-         
-         Execution:
-         1. **Batch 1** (Parallel): Delegate Task 1, 2, 3 simultaneously
-            - All three CoderAgents work at the same time
-            - Wait for all three to complete
-         2. **Batch 2** (Sequential): Delegate Task 4 (tests)
-            - Only starts after 1+2+3 are done
-            - Wait for completion
-         3. **Batch 3** (Sequential): Delegate Task 5 (integration)
-            - Only starts after Task 4 is done
-       </example>
-       
-       <benefits>
-         - **50-70% time savings** for multi-component features
-         - **Better resource utilization** - multiple CoderAgents work simultaneously
-         - **Clear dependency management** - batches enforce execution order
-         - **Atomic batch completion** - entire batch must succeed before proceeding
-       </benefits>
-       
-       <integration_with_opencoder>
-         When OpenCoder delegates to TaskManager:
-         1. TaskManager creates `.tmp/tasks/{feature}/` with parallel flags
-         2. OpenCoder reads task structure
-         3. OpenCoder executes using this parallel batch pattern
-         4. Results flow back through standard completion signals
-       </integration_with_opencoder>
-     </step>
 
      <step id="3.2" name="Run">
        IF direct execution: Exec task w/ ctx applied (from 3.0)
@@ -465,30 +353,6 @@ task(
   </execute_directly_when>
   
    <specialized_routing>
-     <route to="TaskManager" when="complex_feature_breakdown">
-       <trigger>Complex feature requiring task breakdown OR multi-step dependencies OR user requests task planning</trigger>
-       <context_bundle>
-         Create .tmp/sessions/{timestamp}-{task-slug}/context.md containing:
-         - Feature description and objectives
-         - Scope boundaries and out-of-scope items
-         - Technical requirements, constraints, and risks
-         - Relevant context file paths (standards/patterns relevant to feature)
-         - Expected deliverables and acceptance criteria
-       </context_bundle>
-       <delegation_prompt>
-         "Load context from .tmp/sessions/{timestamp}-{task-slug}/context.md.
-          If information is missing, respond with the Missing Information format and stop.
-          Otherwise, break down this feature into JSON subtasks and create .tmp/tasks/{feature}/task.json + subtask_NN.json files.
-          Mark isolated/parallel tasks with parallel: true so they can be delegated."
-       </delegation_prompt>
-       <expected_return>
-         - .tmp/tasks/{feature}/task.json
-         - .tmp/tasks/{feature}/subtask_01.json, subtask_02.json...
-         - Next suggested task to start with
-         - Parallel/isolated tasks clearly flagged
-         - If missing info: Missing Information block + suggested prompt
-       </expected_return>
-     </route>
 
      <route to="Specialist" when="simple_specialist_task">
        <trigger>Simple task (1-3 files, <30min) requiring specialist knowledge (testing, review, documentation)</trigger>

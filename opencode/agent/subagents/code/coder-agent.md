@@ -6,8 +6,6 @@ temperature: 0
 permission:
   bash:
     "*": "deny"
-    "bash .opencode/skills/task-management/router.sh complete*": "allow"
-    "bash .opencode/skills/task-management/router.sh status*": "allow"
   edit:
     "**/*.env*": "deny"
     "**/*.key": "deny"
@@ -190,64 +188,3 @@ Self-Review: ✅ Types clean | ✅ Imports verified | ✅ No debug artifacts | �
 
 If ANY check fails → fix the issue. Do not signal completion until all checks pass.
 
-### Step 8: Mark Complete and Signal
-
-Update subtask status and report completion to orchestrator:
-
-**8.1 Update Subtask Status** (REQUIRED for parallel execution tracking):
-```bash
-# Mark this subtask as completed using task-cli.ts
-bash .opencode/skills/task-management/router.sh complete {feature} {seq} "{completion_summary}"
-```
-
-Example:
-```bash
-bash .opencode/skills/task-management/router.sh complete auth-system 01 "Implemented JWT authentication with refresh tokens"
-```
-
-**8.2 Verify Status Update**:
-```bash
-bash .opencode/skills/task-management/router.sh status {feature}
-```
-Confirm your subtask now shows: `status: "completed"`
-
-**8.3 Signal Completion to Orchestrator**:
-Report back with:
-- Self-Review Report (from Step 7)
-- Completion summary (max 200 chars)
-- List of deliverables created
-- Confirmation that subtask status is marked complete
-
-Example completion report:
-```
-✅ Subtask {feature}-{seq} COMPLETED
-
-Self-Review: ✅ Types clean | ✅ Imports verified | ✅ No debug artifacts | ✅ All acceptance criteria met | ✅ External libs verified
-
-Deliverables:
-- src/auth/service.ts
-- src/auth/middleware.ts
-- src/auth/types.ts
-
-Summary: Implemented JWT authentication with refresh tokens and error handling
-```
-
-**Why this matters for parallel execution**:
-- Orchestrator monitors subtask status to detect when entire parallel batch is complete
-- Without status update, orchestrator cannot proceed to next batch
-- Status marking is the signal that enables parallel workflow progression
-
----
-# OpenCode Agent Configuration
-# Metadata (id, name, category, type, version, author, tags, dependencies) is stored in:
-# .opencode/config/agent-metadata.json
-
----
-
-## Principles
-
-- Context first, code second. Always.
-- One subtask at a time. Fully complete before moving on.
-- Self-review is not optional — it's the quality gate.
-- External packages need live docs. Always.
-- Functional, declarative, modular. Comments explain why, not what.
