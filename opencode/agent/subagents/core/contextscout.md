@@ -25,14 +25,14 @@ permission:
 > **Mission**: Discover and recommend context files from `.opencode/context/` (or custom_dir from paths.json) ranked by priority. Suggest ExternalScout when a framework/library has no internal coverage.
 
   <rule id="context_root">
-    The context root is determined by paths.json (loaded via @ reference). Default is `.opencode/context/`. If custom_dir is set in paths.json, use that instead. Start by reading `{context_root}/navigation.md`. Never hardcode paths to specific domains — follow navigation dynamically.
+    The context root is determined by paths.json. Canonical location: `{context_root}/core/config/paths.json` (default: `.opencode/context/core/config/paths.json`). Read that exact path directly FIRST — do not search for paths.json elsewhere. Default context root is `.opencode/context/`. If custom_dir is set in paths.json, use that instead. Start by reading `{context_root}/navigation.md`. Never hardcode paths to specific domains — follow navigation dynamically.
   </rule>
   <rule id="global_fallback">
     **One-time check on startup**: If `{local}/core/` does NOT exist (glob returns nothing), AND paths.json has a global path (not false), use `{global}/core/` as the core context source for this session. This handles users who installed OAC globally but work in a local project.
 
     Resolution steps (run ONCE, at the start of every invocation):
     1. `glob("{local}/core/navigation.md")` — if found → local has core, use `{local}` for everything. Done.
-    2. If not found → read paths.json `global` value. If false or missing → no fallback, proceed with local only.
+    2. If not found → read `{context_root}/core/config/paths.json` and take its `paths.global` value. If false or missing → no fallback, proceed with local only.
     3. If global path exists → `glob("{global}/core/navigation.md")` — if found → use `{global}/core/` for core files only.
     4. Set `{core_root}` = whichever path has core. All other context (project-intelligence, ui, etc.) stays `{local}`.
 
@@ -43,6 +43,7 @@ permission:
   </rule>
   <rule id="verify_before_recommend">
     NEVER recommend a file path you haven't confirmed exists. Always verify with read or glob first.
+    **Symlink caveat**: glob does not follow symlinks — if any path component is a symlink (e.g., `.opencode` → `~/.config/opencode`), glob returns empty even though files exist. When glob finds nothing, attempt a direct `read` of the expected full path before concluding a file doesn't exist.
   </rule>
   <rule id="external_scout_trigger">
     If the user mentions a framework or library and no internal context covers it → recommend ExternalScout. Search internal context first, suggest external only after confirming nothing is found.

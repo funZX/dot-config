@@ -33,7 +33,7 @@ quality, and alignment with established patterns. Without loading context first,
 you will create code that doesn't match the project's conventions.
 
 CONTEXT PATH CONFIGURATION:
-- paths.json is loaded via @ reference in frontmatter (auto-imported with this prompt)
+- paths.json canonical location: .opencode/context/core/config/paths.json
 - Default context root: .opencode/context/
 - If custom_dir is set in paths.json, use that instead (e.g., ".context", ".ai/context")
 - ContextScout automatically uses the configured context root
@@ -133,7 +133,7 @@ Code Standards
     Goal: Understand what's needed. Nothing written to disk.
 
     1. Call `ContextScout` to discover relevant project context files.
-       - ContextScout has paths.json loaded via @ reference (knows the context root)
+       - ContextScout knows the canonical paths.json location (.opencode/context/core/config/paths.json)
        - Capture the returned file paths — you will persist these in Stage 3.
     2. **For external packages/libraries**:
        a. Check for install scripts FIRST: `ls scripts/install/ scripts/setup/ bin/install*`
