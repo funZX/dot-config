@@ -647,7 +647,7 @@ Found in context-organizer.md:
 
 **If ContextOrganizer or ContextScout**:
 
-Invoke subagent using the `task` tool:
+Invoke subagent using the `task` tool (OpenCode command handler context):
 
 ```
 task(
@@ -685,6 +685,10 @@ task(
           Begin execution."
 )
 ```
+
+**Note**: The `task` tool is available in OpenCode command handler context. In chat/testing contexts, use the `subagent` tool with full agent paths:
+- ContextOrganizer → `subagents/system-builder/context-organizer`
+- ContextScout → `subagents/core/contextscout`
 
 **If operation="default"**:
 - Execute the QuickScan workflow from the "Default Behavior" section above
