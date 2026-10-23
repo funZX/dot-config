@@ -189,9 +189,134 @@ When invoked without arguments: `/context`
   <operation name="migrate">
     Read: standards/mvi.md
   </operation>
+  
+  <operation name="map">
+    Read: (none - read-only analysis)
+  </operation>
+  
+  <operation name="validate">
+    Read: standards/mvi.md, standards/frontmatter.md, standards/structure.md
+  </operation>
 </lazy_load_map>
 
 **All files located in**: `.opencode/context/core/context-system/`
+
+---
+
+## Execution Instructions
+
+**When the user runs `/context`**, execute this workflow:
+
+### 1. Parse Operation from Arguments
+
+**Analyze** `$ARGUMENTS`:
+
+```
+Arguments: "$ARGUMENTS"
+
+Parse:
+  - Split by spaces: [word1, word2, ...]
+  - First word (or empty) = operation name
+  - Remaining words = operation arguments
+```
+
+**Operation mapping**:
+- Empty/missing → `"default"`
+- `"harvest"`, `"compact"`, `"extract"`, `"organize"`, `"update"`, `"error"`, `"create"`, `"migrate"` → ContextOrganizer operations
+- `"map"`, `"validate"` → ContextScout operations  
+- `"help"` → Show help (no subagent needed)
+
+**Store**: `{operation}` and `{args}`
+
+---
+
+### 2. Load Context Files (Lazy Loading) ⛔ CRITICAL
+
+**Look up** `{operation}` in the `<lazy_load_map>` above.
+
+**For each file listed** (e.g., `operations/harvest.md, standards/mvi.md`):
+
+```bash
+# Read each context file BEFORE proceeding
+# Path: .opencode/context/core/context-system/{path}
+```
+
+**Action**: Use the **Read tool** to load each file:
+- `.opencode/context/core/context-system/operations/harvest.md`
+- `.opencode/context/core/context-system/standards/mvi.md`
+
+**Why**: These files contain the workflow definitions and standards the subagent needs.
+
+**Checkpoint**: All required context files loaded → proceed to Step 3.
+
+---
+
+### 3. Route to Subagent
+
+**Select subagent** based on operation:
+
+| Operation | Subagent | Context Bundle |
+|-----------|----------|----------------|
+| harvest, extract, organize, update, error, create, migrate | **ContextOrganizer** | Loaded context files + workflow to execute |
+| map, validate | **ContextScout** | Operation name + arguments |
+| default | (execute directly) | N/A |
+| help | (execute directly) | N/A |
+
+**If ContextOrganizer or ContextScout**:
+
+Invoke subagent using the `task` tool:
+
+```
+task(
+  subagent_type="ContextOrganizer",  // or "ContextScout"
+  description="/context {operation} operation",
+  prompt="=== CONTEXT LOADED ===
+          The following context files were loaded per lazy_load_map:
+          
+          1. {filename1} - {brief summary of content}
+          2. {filename2} - {brief summary}
+          
+          === OPERATION ===
+          Name: {operation}
+          Arguments: {args}
+          
+          === WORKFLOW TO EXECUTE ===
+          {Paste the relevant <operation>_workflow section from loaded context}
+          
+          === REQUIREMENTS ===
+          - Execute workflow stages in order
+          - Enforce @approval_gate before destructive operations (show approval UI, wait for input)
+          - Enforce @mvi_compliance (files <200 lines, 1-3 sentences, 3-5 bullets, <10 line examples)
+          - Enforce @function_structure (concepts/, examples/, guides/, lookup/, errors/)
+          - Report errors and stop (@report_first, @stop_on_failure)
+          
+          Begin execution."
+)
+```
+
+**If operation="default"**:
+- Execute the QuickScan workflow from the "Default Behavior" section above
+- Show scan results with suggested actions
+
+**If operation="help"**:
+- Display all operations with examples (from "Operations" section above)
+
+---
+
+### 4. Monitor Completion
+
+**Wait** for subagent task to complete.
+
+**On successful completion**:
+- Show subagent's output to user
+- Ask: "Complete & satisfactory? Cleanup temp files?" (@confirm_cleanup rule)
+
+**On error or failure**:
+- Report error to user
+- Propose fix based on error
+- Ask: "Approve fix and retry?" (@report_first rule)
+- Do NOT auto-fix without approval
+```
 
 ---
 
