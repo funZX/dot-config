@@ -347,7 +347,62 @@ Parse:
 
 ---
 
-### 3. Route to Subagent
+### 3. Extract Workflow Definition
+
+**Map operation name** to workflow tag:
+
+| Operation | Workflow Tag | Source File |
+|-----------|-------------|-------------|
+| harvest | `<harvest_workflow>` | context-organizer.md |
+| extract | `<extract_workflow>` | context-organizer.md |
+| organize | `<organize_workflow>` | context-organizer.md |
+| update | `<update_workflow>` | context-organizer.md |
+| error | `<error_workflow>` | context-organizer.md |
+| create | `<create_workflow>` | context-organizer.md |
+| compact | `<compact_workflow>` | context-organizer.md |
+| migrate | `<migrate_workflow>` | context-organizer.md |
+| map | `<map_workflow>` | contextscout.md |
+| validate | `<validate_workflow>` | contextscout.md |
+
+**Extract the workflow section**:
+
+From the loaded context file, extract content between the workflow tags:
+
+```
+Search for: <operation_name>_workflow>
+Extract: Everything from <operation_name>_workflow> to </operation_name>_workflow>
+```
+
+**Example** (for "harvest" operation):
+
+```
+Found in context-organizer.md:
+
+<harvest_workflow>
+  <!-- 6-stage harvest workflow per operations/harvest.md -->
+
+  <stage id="1" name="Scan">
+    **Purpose**: Find all summary files in workspace
+    ...
+  </stage>
+
+  <stage id="2" name="Analyze">
+    ...
+  </stage>
+
+</harvest_workflow>
+```
+
+**Keep the full section** including:
+- Opening tag: `<harvest_workflow>`
+- All content (stages, instructions, validation)
+- Closing tag: `</harvest_workflow>`
+
+**Store** this for the subagent prompt.
+
+---
+
+### 4. Route to Subagent
 
 **Select subagent** based on operation:
 
@@ -377,7 +432,16 @@ task(
           Arguments: {args}
           
           === WORKFLOW TO EXECUTE ===
-          {Paste the relevant <operation>_workflow section from loaded context}
+          [Insert the extracted <operation>_workflow section from Step 3]
+          
+          Example format (for 'harvest'):
+          <harvest_workflow>
+            <stage id=\"1\" name=\"Scan\">
+              **Purpose**: Find all summary files in workspace
+              ...
+            </stage>
+            ...
+          </harvest_workflow>
           
           === REQUIREMENTS ===
           - Execute workflow stages in order
