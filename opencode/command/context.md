@@ -440,22 +440,85 @@ What would you like to do?
 
 **Analyze** `$ARGUMENTS`:
 
-```
+#### Pattern Recognition
+
+Some operations use **special keywords** (`from`, `for`) as part of their syntax:
+
+| Pattern | Example | Operation | Arguments |
+|---------|---------|-----------|-----------|
+| `{op} from {source}` | `extract from docs/api.md` | `extract` | `from docs/api.md` |
+| `{op} for {topic}` | `update for React 18` | `update` | `for React 18` |
+| `{op} for {error}` | `error for TypeError` | `error` | `for TypeError` |
+| `{op} {arg}` | `organize development/` | `organize` | `development/` |
+| `{op}` | `harvest` | `harvest` | (empty) |
+
+#### Parsing Algorithm
+
+```bash
 Arguments: "$ARGUMENTS"
 
-Parse:
-  - Split by spaces: [word1, word2, ...]
-  - First word (or empty) = operation name
-  - Remaining words = operation arguments
+Step 1: Split by first space
+  - First word = candidate operation name
+  - Rest = candidate arguments
+
+Step 2: Check for special patterns
+  IF first word is "extract" AND rest starts with "from":
+    → operation = "extract"
+    → args = rest (includes "from")
+  
+  ELSE IF first word is "update" AND rest starts with "for":
+    → operation = "update"
+    → args = rest (includes "for")
+  
+  ELSE IF first word is "error" AND rest starts with "for":
+    → operation = "error"
+    → args = rest (includes "for")
+  
+  ELSE:
+    → operation = first word
+    → args = rest (standard parsing)
 ```
 
-**Operation mapping**:
-- Empty/missing → `"default"`
-- `"harvest"`, `"compact"`, `"extract"`, `"organize"`, `"update"`, `"error"`, `"create"`, `"migrate"` → ContextOrganizer operations
-- `"map"`, `"validate"` → ContextScout operations  
-- `"help"` → Show help (no subagent needed)
+#### Examples
 
-**Store**: `{operation}` and `{args}`
+```
+Input: ""
+  → operation: "default", args: ""
+
+Input: "harvest"
+  → operation: "harvest", args: ""
+
+Input: "harvest .tmp/"
+  → operation: "harvest", args: ".tmp/"
+
+Input: "extract from docs/api.md"
+  → operation: "extract", args: "from docs/api.md"  ✓ (keeps "from")
+
+Input: "update for React 18 breaking changes"
+  → operation: "update", args: "for React 18 breaking changes"  ✓ (keeps "for")
+
+Input: "error for TypeError: Cannot read property"
+  → operation: "error", args: "for TypeError: Cannot read property"  ✓ (keeps "for")
+
+Input: "organize development/"
+  → operation: "organize", args: "development/"
+
+Input: "help"
+  → operation: "help", args: ""
+```
+
+**Store**: `{operation}` and `{args}` for use in subsequent steps.
+
+#### Operation Mapping to Subagents
+
+**Map** the parsed operation to the appropriate handler:
+
+| Operation | Handler | Notes |
+|-----------|---------|-------|
+| (empty) | `default` | Execute quick scan directly |
+| `harvest`, `compact`, `extract`, `organize`, `update`, `error`, `create`, `migrate` | **ContextOrganizer** | Delegate with workflow |
+| `map`, `validate` | **ContextScout** | Delegate for analysis |
+| `help` | (direct) | Display help directly (no subagent) |
 
 ---
 
