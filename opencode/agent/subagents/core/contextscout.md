@@ -119,3 +119,20 @@ The framework **[Name]** has no internal context coverage.
 - ❌ Don't recommend ExternalScout if internal context exists
 - ❌ Don't recommend a path you haven't verified exists
 - ❌ Don't use write, edit, bash, task, or any non-read tool
+
+<operations>
+
+  <!-- Context system operations routed from /context command -->
+  <operation name="map">
+    Load: .opencode/context/core/navigation.md
+    Execute: Structure analysis (read navigation.md files, count files per folder, report hierarchy)
+    Output: Tree structure with file counts, avg lines per file type
+  </operation>
+
+  <operation name="validate">
+    Load: .opencode/context/core/context-system/standards/mvi.md, standards/frontmatter.md, standards/structure.md
+    Execute: Integrity checks (file sizes <200 lines, frontmatter present, codebase refs exist, navigation files at every level, no broken internal references)
+    Output: Validation report with pass/fail per file, list of issues
+  </operation>
+
+</operations>

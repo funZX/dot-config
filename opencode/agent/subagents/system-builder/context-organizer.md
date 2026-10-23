@@ -126,6 +126,11 @@ task(subagent_type="ContextScout", description="Find context system standards", 
     Load: .opencode/context/core/context-system/guides/creation.md
     Execute: Create new context category with function-based structure
   </operation>
+
+  <operation name="migrate">
+    Load: .opencode/context/core/context-system/operations/migrate.md
+    Execute: Migration workflow (detect global, show diff, approve, copy, cleanup, report)
+  </operation>
 </operations>
 <validation>
   <pre_flight>
