@@ -539,6 +539,42 @@ Input: "help"
 
 **Why**: These files contain the workflow definitions and standards the subagent needs.
 
+---
+
+### 2b. Generate Context Summaries (Optional Enhancement)
+
+**For each loaded file**, generate a brief summary (1 sentence) for the subagent prompt:
+
+**Formula**:
+```
+{filename} = {what it is} + {key purpose}
+```
+
+**Examples**:
+
+| File | Summary |
+|------|---------|
+| `operations/harvest.md` | "6-stage workflow for extracting AI summaries into permanent context" |
+| `standards/mvi.md` | "Minimal Viable Information principle - files under 200 lines, 1-3 sentences, 3-5 bullets" |
+| `operations/extract.md` | "7-stage workflow for extracting context from docs, code, or URLs" |
+| `guides/compact.md` | "5 compression techniques to minimize verbose content to MVI format" |
+| `standards/structure.md` | "Function-based folder structure: concepts/, examples/, guides/, lookup/, errors/" |
+| `operations/organize.md` | "8-stage workflow for restructuring flat files into function folders" |
+| `operations/update.md` | "8-stage workflow for updating context when APIs or frameworks change" |
+| `operations/error.md` | "6-stage workflow for adding recurring errors with deduplication" |
+| `guides/creation.md` | "6-step process for creating new context categories" |
+| `operations/migrate.md` | "4-stage workflow for migrating global context to local project" |
+| `standards/frontmatter.md` | "Required frontmatter format for all context files" |
+
+**Usage in prompt** (Step 4):
+```
+=== CONTEXT LOADED ===
+1. operations/harvest.md - 6-stage workflow for extracting AI summaries into permanent context
+2. standards/mvi.md - Minimal Viable Information principle - files under 200 lines, 1-3 sentences, 3-5 bullets
+```
+
+**Note**: This is optional - subagents work without summaries, but summaries improve clarity.
+
 **Checkpoint**: All required context files loaded → proceed to Step 3.
 
 ---
@@ -672,7 +708,91 @@ task(
 - Propose fix based on error
 - Ask: "Approve fix and retry?" (@report_first rule)
 - Do NOT auto-fix without approval
+
+---
+
+### 5. Post-Operation Validation (Optional Enhancement)
+
+**After successful completion**, validate the operation against success criteria:
+
+#### Validation Checklist
+
+**Run these checks** (automated where possible):
+
 ```
+✅ CRITICAL CHECKS (Must Pass):
+
+[ ] 1. File sizes under 200 lines? (@mvi_strict)
+    - Run: find {category} -name "*.md" -exec wc -l {} \;
+    - Flag: Any file > 200 lines
+    - Action: Report violation, suggest compaction
+
+[ ] 2. Function-based structure used? (@function_structure)
+    - Check: folders are concepts/, examples/, guides/, lookup/, errors/
+    - Flag: Flat files or wrong folder names
+    - Action: Suggest reorganization
+
+[ ] 3. Approval UI shown for destructive ops? (@approval_gate)
+    - Verify: Subagent output contains approval prompts
+    - Flag: Missing approval UI for delete/archive operations
+    - Action: Report violation (critical rule breach)
+
+[ ] 4. Required context loaded? (@lazy_load)
+    - Check: Operation loaded files per lazy_load_map
+    - Flag: Missing required context files
+    - Action: Report for future improvement
+
+✅ QUALITY CHECKS (Should Pass):
+
+[ ] 5. navigation.md updated?
+    - Check: {category}/navigation.md exists
+    - Verify: New files listed in navigation tables
+    - Flag: Missing navigation entries
+    - Action: Suggest updating navigation
+
+[ ] 6. Files scannable in <30 seconds?
+    - Check: Files follow MVI format
+    - Verify: Core concepts are 1-3 sentences
+    - Flag: Verbose files or long paragraphs
+    - Action: Suggest compaction
+```
+
+#### Validation Output Format
+
+**If all checks pass**:
+```
+✅ Post-Operation Validation: PASSED
+
+All 6 checks passed:
+  ✓ File sizes under 200 lines
+  ✓ Function-based structure used
+  ✓ Approval UI shown (destructive ops)
+  ✓ Required context loaded
+  ✓ navigation.md updated
+  ✓ Files scannable (<30 seconds)
+
+Operation complete and compliant! 🎉
+```
+
+**If checks fail**:
+```
+⚠️ Post-Operation Validation: ISSUES FOUND
+
+Passed: 4/6 checks
+Failed: 2/6 checks
+
+❌ Failed Checks:
+  1. File sizes: guides/verbose-guide.md (247 lines, limit: 200)
+  2. Navigation: new-file.md not listed in navigation.md
+
+Recommended Actions:
+  - /context compact guides/verbose-guide.md
+  - Manually add new-file.md to navigation.md
+
+Continue anyway? [y/n]
+```
+
+**Note**: Validation is optional - operations succeed without it, but validation ensures quality.
 
 ---
 
