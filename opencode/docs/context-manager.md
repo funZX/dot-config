@@ -1,10 +1,12 @@
-<!-- Context: context-system/manager | Priority: critical | Version: 1.0 | Updated: 2026-10-23 -->
+<!-- Context: context-system/manager | Priority: critical | Version: 2.0 | Updated: 2026-10-24 -->
 
 # Context Manager
 
 **Purpose**: Command-line interface for managing AI context files—harvest knowledge, extract from sources, organize by function, and keep workspace tidy.
 
-**Last Updated**: 2026-10-23
+**Last Updated**: 2026-10-24
+
+**Status**: ✅ **All 12 operations fully implemented** (commit 8468fff)
 
 ---
 
@@ -775,7 +777,35 @@ Each operation loads specific context files before execution:
 
 ## Related Documentation
 
-- **Context System**: `.opencode/context/core/context-system.md`
+- **Context System**: `.opencode/context/core/navigation.md`
 - **MVI Principle**: `.opencode/context/core/context-system/standards/mvi.md`
-- **File Templates**: `.opencode/context/core/context-system/standards/templates.md`
+- **File Templates**: `.opencode/context/core/context-system/standards/frontmatter.md`
 - **Structure Guide**: `.opencode/context/core/context-system/standards/structure.md`
+- **Operation Workflows**: `.opencode/context/core/context-system/operations/`
+- **Compaction Guide**: `.opencode/context/core/context-system/guides/compact.md`
+
+---
+
+## Implementation Status
+
+**All operations implemented and committed** (commit `8468fff`):
+
+| Component | Workflows | Lines | Status |
+|-----------|-----------|-------|--------|
+| **ContextOrganizer** | 8 workflows | 745 | ✅ Complete |
+| **ContextScout** | 2 workflows | 265 | ✅ Complete |
+| **Command Handler** | Built-in | N/A | ✅ Complete |
+
+**Workflow Details**:
+- harvest: 6-stage (scan, analyze, approve, extract, cleanup, report)
+- extract: 7-stage (read, categorize, select, preview, create, update, report)
+- organize: 8-stage (scan, categorize, resolve, preview, backup, execute, update, report)
+- update: 8-stage (identify, find affected, preview, backup, update, migration, validate, report)
+- error: 6-stage (search, deduplicate, preview, add/update, cross-reference, report)
+- create: 6-step (determine function, template, MVI, validate, cross-reference, navigation)
+- compact: 5 techniques (extract core, bulletize, minimize, reference, tables)
+- migrate: 4-stage (detect, check conflicts, approval copy, cleanup)
+- map: 4-stage (scan structure, count files, generate tree, report)
+- validate: 8-stage (load standards, check sizes, frontmatter, refs, navigation, links, duplication, report)
+
+**All workflows enforce**: @approval_gate, @mvi_compliance, @function_structure, @lazy_load
