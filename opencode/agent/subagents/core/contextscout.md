@@ -136,3 +136,270 @@ The framework **[Name]** has no internal context coverage.
   </operation>
 
 </operations>
+
+<map_workflow>
+  <!-- Structure analysis workflow for /context map -->
+
+  <stage id="1" name="ScanStructure">
+    **Purpose**: Discover context directory structure
+
+    **Process**:
+    1. Read navigation.md files from root down
+    2. List all directories and subdirectories
+    3. Count files per folder
+    4. Calculate file sizes
+
+    **Output**: Complete structure map
+  </stage>
+
+  <stage id="2" name="CountFiles">
+    **Purpose**: Generate file counts and statistics
+
+    **Metrics**:
+    - Files per folder (concepts/, examples/, guides/, lookup/, errors/)
+    - Average lines per file type
+    - Total files, total lines
+    - Files by priority level (critical/high/medium/low)
+
+    **Format**:
+    ```
+    Context Structure:
+    
+    .opencode/context/
+    ├── core/ (45 files, 3,240 lines)
+    │   ├── concepts/ (12 files, avg 65 lines)
+    │   ├── examples/ (8 files, avg 42 lines)
+    │   ├── guides/ (15 files, avg 88 lines)
+    │   ├── lookup/ (5 files, avg 35 lines)
+    │   └── errors/ (5 files, avg 72 lines)
+    ├── development/ (23 files, 1,890 lines)
+    └── project-intelligence/ (3 files, 340 lines)
+
+    Total: 71 files, 5,470 lines
+    Average: 77 lines/file
+    ```
+  </stage>
+
+  <stage id="3" name="GenerateTree">
+    **Purpose**: Generate visual tree structure
+
+    **Format**:
+    ```
+    .opencode/context/
+    │
+    ├── core/
+    │   ├── navigation.md
+    │   ├── concepts/
+    │   │   ├── authentication.md (65 lines, high)
+    │   │   └── routing.md (72 lines, critical)
+    │   ├── examples/
+    │   │   └── jwt-example.md (42 lines, high)
+    │   └── ...
+    │
+    └── development/
+        └── ...
+    ```
+  </stage>
+
+  <stage id="4" name="Report">
+    **Purpose**: Show comprehensive structure report
+
+    **Format**:
+    ```
+    ✅ Context Structure Summary
+
+    Categories: 3 (core, development, project-intelligence)
+    Total Files: 71
+    Total Lines: 5,470
+    Average Lines/File: 77
+
+    By Type:
+      - Concepts: 12 files (avg 65 lines)
+      - Examples: 8 files (avg 42 lines)
+      - Guides: 15 files (avg 88 lines)
+      - Lookup: 5 files (avg 35 lines)
+      - Errors: 5 files (avg 72 lines)
+
+    By Priority:
+      - Critical: 8 files
+      - High: 23 files
+      - Medium: 31 files
+      - Low: 9 files
+
+    Largest Files:
+      - guides/advanced-patterns.md (148 lines)
+      - concepts/architecture.md (134 lines)
+      - ...
+
+    Files Over 150 Lines: 0 ✓ (all under limit)
+    Files Missing Frontmatter: 0 ✓ (all compliant)
+    ```
+  </stage>
+
+</map_workflow>
+
+<validate_workflow>
+  <!-- Integrity validation workflow for /context validate -->
+
+  <stage id="1" name="LoadStandards">
+    **Purpose**: Load validation standards
+
+    **Files to Load**:
+    - standards/mvi.md (line limits, MVI format)
+    - standards/frontmatter.md (frontmatter requirements)
+    - standards/structure.md (folder structure rules)
+
+    **Output**: Validation criteria loaded
+  </stage>
+
+  <stage id="2" name="CheckFileSizes">
+    **Purpose**: Verify all files under line limits
+
+    **Limits**:
+    | Type | Max |
+    |------|-----|
+    | Concept | 100 |
+    | Example | 80 |
+    | Guide | 150 |
+    | Lookup | 100 |
+    | Error | 150 |
+
+    **Process**:
+    1. Scan all .md files
+    2. Count lines per file
+    3. Compare to type limits
+    4. Flag violations
+
+    **Output**: List of oversized files (if any)
+  </stage>
+
+  <stage id="3" name="CheckFrontmatter">
+    **Purpose**: Verify all files have required frontmatter
+
+    **Required Format**:
+    ```
+    <!-- Context: {category}/{function} | Priority: {level} | Version: X.Y | Updated: YYYY-MM-DD -->
+    ```
+
+    **Checks**:
+    - Frontmatter present (first line)
+    - Has category/function
+    - Has priority (critical/high/medium/low)
+    - Has version (X.Y format)
+    - Has updated date (YYYY-MM-DD)
+
+    **Output**: List of files missing/invalid frontmatter
+  </stage>
+
+  <stage id="4" name="CheckCodebaseRefs">
+    **Purpose**: Verify all files have codebase references
+
+    **Required Section**:
+    ```
+    ## 📂 Codebase References
+    **Implementation**: `{path}` - {description}
+    ```
+
+    **Process**:
+    1. Search for "📂 Codebase References" or "**Implementation**:" in each file
+    2. Flag files without references
+
+    **Output**: List of files missing codebase references
+  </stage>
+
+  <stage id="5" name="CheckNavigationFiles">
+    **Purpose**: Verify navigation.md exists at every level
+
+    **Process**:
+    1. List all directories
+    2. Check for navigation.md in each
+    3. Flag directories without navigation
+
+    **Output**: List of directories missing navigation.md
+  </stage>
+
+  <stage id="6" name="CheckBrokenReferences">
+    **Purpose**: Verify all internal references work
+
+    **Process**:
+    1. Extract all markdown links `[text](path.md)`
+    2. Filter to internal references (relative paths)
+    3. Check if target files exist
+    4. Flag broken links
+
+    **Output**: List of broken internal references
+  </stage>
+
+  <stage id="7" name="CheckDuplication">
+    **Purpose**: Detect duplicate content across files
+
+    **Process**:
+    1. Extract core concepts from each file
+    2. Compare for similarity (fuzzy matching)
+    3. Flag potential duplicates
+
+    **Output**: List of potentially duplicated content
+  </stage>
+
+  <stage id="8" name="Report">
+    **Purpose**: Show comprehensive validation report
+
+    **Format**:
+    ```
+    ✅ Validation Complete
+
+    Files Checked: 71
+    Total Lines: 5,470
+
+    ✅ File Sizes: All files under limits
+       - Largest: guides/advanced-patterns.md (148 lines)
+       - Average: 77 lines/file
+
+    ✅ Frontmatter: All files compliant
+       - Format: <!-- Context: ... -->
+       - All have priority, version, updated date
+
+    ✅ Codebase References: All files have implementation links
+
+    ✅ Navigation: All directories have navigation.md
+
+    ✅ Internal Links: No broken references
+       - Checked: 234 links
+
+    ✅ Duplication: No duplicates detected
+
+    Issues Found: 0
+    Status: ✅ PASSED
+
+    Next validation recommended: After adding 10+ new files or major restructuring
+    ```
+
+    **If issues found**:
+    ```
+    Issues Found: {N}
+
+    ❌ File Sizes (2):
+      - guides/verbose-guide.md (187 lines, limit: 150)
+      - concepts/long-concept.md (124 lines, limit: 100)
+
+    ❌ Frontmatter Missing (3):
+      - examples/missing-frontmatter.md
+      - lookup/commands.md
+      - ...
+
+    ❌ Codebase References Missing (1):
+      - concepts/orphan-concept.md
+
+    ❌ Broken Links (4):
+      - concepts/routing.md → examples/nonexistent.md (line 45)
+      - ...
+
+    Recommendations:
+      1. Compress or split oversized files
+      2. Add frontmatter to flagged files
+      3. Add implementation links
+      4. Fix or remove broken links
+    ```
+  </stage>
+
+</validate_workflow>

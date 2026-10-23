@@ -4,8 +4,9 @@
     "plan": {"disable": true},
     "build": {"disable": true}
   },
+  "default_agent": "core/openagent",
   "enabled_providers": ["opencode"],
   "instructions": [
-    "rules/tool-usage.md"
+    "~/.config/opencode/rules/tool-usage.md"
   ]
 }
