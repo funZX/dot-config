@@ -299,6 +299,139 @@ Next actions:
 
 ---
 
+### Execution: Help Operation
+
+**When operation="help"**, display all operations with examples:
+
+**Purpose**: Show user all available `/context` operations with usage examples.
+
+**No subagent needed** - execute directly.
+
+---
+
+#### Step 1: Display Operations List
+
+**Format** the output as follows:
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+/context - Context Manager
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+12 operations available:
+
+PRIMARY OPERATIONS (Harvest & Compact)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  harvest [path]          Extract AI summaries → permanent context
+  compact {file}          Minimize verbose file to MVI format
+
+SECONDARY OPERATIONS (Custom Context Creation)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  extract from {source}   Extract context from docs/code/URLs
+  organize {category}     Restructure flat files → function folders
+  update for {topic}      Update context when APIs/frameworks change
+  error for {error}       Add recurring error to knowledge base
+  create {category}       Create new context category with structure
+
+MIGRATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  migrate                 Copy project-intelligence: global → local
+
+UTILITY OPERATIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  map [category]          View context structure, file counts
+  validate                Check integrity, references, file sizes
+  help                    Show this help message
+
+DEFAULT BEHAVIOR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  (no arguments)          Quick scan → suggests harvest
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+---
+
+#### Step 2: Display Usage Examples
+
+**Show common examples**:
+
+```
+EXAMPLES:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  /context                      # Quick scan (no arguments)
+  /context harvest              # Harvest AI summaries from workspace
+  /context harvest .tmp/        # Harvest from specific directory
+  /context compact file.md      # Minimize verbose file
+  /context extract from docs/   # Extract from documentation
+  /context organize core/       # Organize context category
+  /context update for React 18  # Update for framework changes
+  /context migrate              # Migrate global → local context
+  /context map                  # View structure
+  /context validate             # Check integrity
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Most common: /context harvest
+Start here:  /context (no arguments) - quick scan suggests action
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+---
+
+#### Step 3: Display Context System Info
+
+**Show context system location**:
+
+```
+CONTEXT SYSTEM:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Location: .opencode/context/core/context-system/
+
+Structure:
+  ├── operations/     # Operation workflows (harvest, extract, organize...)
+  ├── standards/      # MVI, structure, templates
+  └── guides/         # Compaction, creation standards
+
+Read first: standards/mvi.md (Minimal Viable Information principle)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+---
+
+#### Step 4: Offer Next Action
+
+**End with interactive prompt**:
+
+```
+What would you like to do?
+  /context harvest              # Most common - tidy up summaries
+  /context {operation} {args}   # Run specific operation
+  /context help                 # Show this help again
+```
+
+---
+
+**Implementation Notes**:
+
+- **Source**: Operation descriptions from "Operations" section above (lines 91-150)
+- **Format**: Use boxes (━━━) for visual separation
+- **Examples**: Show 1-2 examples per operation where applicable
+- **Tone**: Helpful, scannable, actionable
+- **Length**: ~80 lines total (fits on one screen)
+```
+
+---
+
 ## Execution Instructions
 
 **When the user runs `/context`**, execute this workflow:
