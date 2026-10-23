@@ -5,4 +5,7 @@
     "build": {"disable": true}
   },
   "enabled_providers": ["opencode"],
+  "instructions": [
+    "~/.config/opencode/rules/tool-usage.md"
+  ]
 }
