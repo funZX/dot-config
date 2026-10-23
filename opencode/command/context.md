@@ -88,6 +88,102 @@ When invoked without arguments: `/context`
 
 ---
 
+### Execution: Default Scan
+
+**When operation="default"**, execute this workflow:
+
+#### Step 1: Scan for Summary Files
+
+**Run bash commands** to find candidate files:
+
+```bash
+# Pattern 1: Find summary files by naming pattern
+find . -maxdepth 3 -type f \( \
+  -name "*OVERVIEW.md" -o \
+  -name "*SUMMARY.md" -o \
+  -name "SESSION-*.md" -o \
+  -name "CONTEXT-*.md" -o \
+  -name "*NOTES.md" \
+\) ! -path "./.git/*" ! -path "./node_modules/*" 2>/dev/null
+
+# Pattern 2: Scan .tmp/ directory
+find .tmp/ -type f -name "*.md" 2>/dev/null || echo "(.tmp/ not found)"
+
+# Pattern 3: Find large files (>2KB) in root directory
+find . -maxdepth 1 -type f -name "*.md" -size +2k ! -name "README.md" 2>/dev/null
+```
+
+**Collect results**:
+- File path
+- File size (in KB or bytes)
+- Last modified date (for sorting)
+
+#### Step 2: Analyze and Sort
+
+**Process** the scan results:
+
+1. **Filter** out false positives:
+   - Exclude README.md, CHANGELOG.md (these are permanent docs)
+   - Exclude files in .git/, node_modules/, vendor/
+
+2. **Sort** by relevance:
+   - Primary: Recency (newest first)
+   - Secondary: Size (larger = more content)
+
+3. **Categorize**:
+   - High priority: SESSION-*.md, CONTEXT-*.md (AI session summaries)
+   - Medium priority: *OVERVIEW.md, *SUMMARY.md (intentional summaries)
+   - Low priority: Large files in root (may be intentional)
+
+#### Step 3: Display Results
+
+**Format** the output:
+
+```
+Quick scan results:
+
+Found {N} summary files:
+  📄 {filename1} ({size})
+  📄 {filename2} ({size})
+  📄 {filename3} ({size})
+
+Recommended action:
+  /context harvest  - Clean up summaries → permanent context
+
+Other options:
+  /context extract {source}  - Extract from docs/code
+  /context organize {category}  - Restructure existing files
+  /context help  - Show all operations
+
+Type: /context harvest   (or choose another operation)
+```
+
+**If no files found**:
+
+```
+Quick scan complete.
+
+No summary files found in workspace. ✅
+
+Your workspace is clean! Context system is ready.
+
+Next actions:
+  /context help  - Show all context operations
+  /context extract from {source}  - Extract from docs/URLs
+  /context create {category}  - Create new context category
+```
+
+#### Step 4: Wait for User Action
+
+**After showing results**:
+- Do NOT auto-execute harvest
+- Wait for user to run `/context harvest` or another operation
+- This is a **suggestion** mode, not auto-execution (@approval_gate)
+
+---
+
+---
+
 ## Operations
 
 ### Primary: Harvest & Compact (Default Focus)
