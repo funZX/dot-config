@@ -6,6 +6,6 @@
   },
   "enabled_providers": ["opencode"],
   "instructions": [
-    "~/.config/opencode/rules/tool-usage.md"
+    "rules/tool-usage.md"
   ]
 }
