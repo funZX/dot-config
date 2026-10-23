@@ -1,10 +1,30 @@
-<!-- Context: workflows/task-breakdown | Priority: high | Version: 2.0 | Updated: 2025-01-21 -->
+<!-- Context: workflows/task-breakdown | Priority: high | Version: 2.1 | Updated: 2026-10-23 -->
 
 # Task Breakdown Guidelines
 
+> **Scope**: This is a lightweight, manual breakdown technique — a markdown checklist you write and
+> track yourself. It does NOT create `.tmp/tasks/{feature}/*.json` files and is NOT tracked by
+> `task-cli.ts`.
+>
+> **Use this when**: You (OpenAgent, or a human-facing assistant) are planning work that will be
+> executed directly or narrated to the user, without delegating to CoderAgent/TestEngineer/etc.
+> via the TaskManager pipeline.
+>
+> **Do NOT use this when**: The work will be delegated to subagents for parallel/tracked execution.
+> In that case, delegate to `TaskManager` instead — it produces the authoritative
+> `task.json`/`subtask_NN.json` structure that `task-cli.ts`, `CoderAgent`, and `BatchExecutor` all
+> read from. Using this markdown template as a substitute for TaskManager's JSON output will break
+> dependency tracking and parallel batch execution.
+>
+> **Related**: [`component-planning.md`](./component-planning.md) — a complementary technique for
+> OpenCoder that adds a high-level architecture roadmap (`master-plan.md`) above TaskManager's JSON
+> tasks, for features spanning multiple layers (DB + API + UI). Use component-planning.md's
+> Master Plan step first for that kind of complexity, then still hand the actual subtasks to
+> TaskManager — don't track execution in markdown checkboxes once agents are involved.
+
 ## Quick Reference
 
-**When to Use**: 4+ files, >60 min effort, complex dependencies, multi-step coordination
+**When to Use**: 4+ files, >60 min effort, complex dependencies, multi-step coordination — AND no subagent delegation involved (see Scope note above)
 
 **Process**: Scope → Phases → Small Tasks (1-2h) → Dependencies → Estimates
 

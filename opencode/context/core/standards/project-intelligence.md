@@ -62,8 +62,6 @@ For new team members or agents:
 | Feature launch | Update `business-tech-bridge.md` |
 | Stack changes | Update `technical-domain.md` |
 
-**Full Management Guide**: See `.opencode/context/core/standards/project-intelligence-management.md`
-
 ## Integration with Context System
 
 - **Lazy Loading**: Load project intelligence first when joining a project
@@ -72,6 +70,5 @@ For new team members or agents:
 
 ## Related Files
 
-- **Management Guide**: `.opencode/context/core/standards/project-intelligence-management.md`
 - **Context System**: `.opencode/context/core/context-system.md`
-- **Standards Index**: `.opencode/context/core/standards/navigation.md`
+- **Standards Navigation**: `.opencode/context/core/navigation.md`

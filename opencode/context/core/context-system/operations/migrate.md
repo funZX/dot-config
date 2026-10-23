@@ -220,4 +220,4 @@ If you installed to a custom location, set OPENCODE_INSTALL_DIR:
 
 - `/add-context` — Create new project intelligence (interactive wizard)
 - `/context harvest` — Extract knowledge from summaries
-- Context path resolution: `.opencode/context/core/system/context-paths.md`
+- Context navigation: `.opencode/context/core/navigation.md`

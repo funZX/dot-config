@@ -61,7 +61,7 @@ bash .opencode/skills/task-management/router.sh validate
 | `parallel [feature]` | Show parallelizable tasks ready to run |
 | `deps <feature> <seq>` | Show dependency tree for a specific subtask |
 | `blocked [feature]` | Show blocked tasks and why |
-| `complete <feature> <seq> "summary"` | Mark subtask complete with summary |
+| `complete <feature> <seq> "summary" [--force]` | Mark subtask complete with summary. Refuses if dependencies are unmet unless `--force` is given; already-completed subtasks are left untouched. |
 | `validate [feature]` | Validate JSON files and dependencies |
 | `help` | Show help message |
 

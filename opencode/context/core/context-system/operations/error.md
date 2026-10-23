@@ -272,4 +272,3 @@ Group errors by framework/topic in single file:
 ## Related
 
 - standards/templates.md - Error template format
-- guides/workflows.md - Interactive examples

@@ -1,10 +1,10 @@
-<!-- Context: core/organizing-context | Priority: high | Version: 1.1 | Updated: 2026-02-15 -->
+<!-- Context: core/organizing-context | Priority: high | Version: 1.2 | Updated: 2026-10-23 -->
 
 # Guide: Organizing Context by Concern
 
 **Purpose**: How to choose and apply the right organizational pattern
 
-**Last Updated**: 2026-02-15
+**Last Updated**: 2026-10-23
 
 ---
 
@@ -13,15 +13,9 @@
 ### Pattern A: Function-Based
 **Use for**: Repository-specific context
 
-**Structure**: Organize by what the information does
-```
-{repo}/
-├── concepts/     # What it is
-├── examples/     # Working code
-├── guides/       # How to do it
-├── lookup/       # Quick reference
-└── errors/       # Troubleshooting
-```
+**Structure**: Organize by what the information does — see
+`../standards/structure.md` (`function_structure` rule) for the required
+`concepts/`, `examples/`, `guides/`, `lookup/`, `errors/` folders.
 
 **Example**: `openagents-repo/`
 
@@ -75,7 +69,7 @@ mkdir -p {category}/{subcategory}
 
 ### 5. Create Navigation Files
 - Add `navigation.md` to each directory
-- Follow navigation template (see navigation-templates.md)
+- Follow navigation template (see ../standards/templates.md, sections 6-7)
 - Keep to 200-300 tokens
 
 ### 6. Update References
@@ -148,5 +142,5 @@ ui/
 ## Related
 
 - structure.md - Directory structure standards
-- navigation-templates.md - Navigation file templates
+- ../standards/templates.md - Navigation file templates (sections 6-7)
 - creation.md - Creating new context files

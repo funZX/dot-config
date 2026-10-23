@@ -6,19 +6,17 @@ temperature: 0.1
 permission:
   bash:
     "*": "deny"
-    "npx ts-node*task-cli*": "allow"
+    "bash .opencode/skills/task-management/router.sh*": "allow"
     "mkdir -p .tmp/tasks*": "allow"
     "mv .tmp/tasks*": "allow"
+  read:
+    "**/*": "ask"
   edit:
-    "**/*.env*": "deny"
-    "**/*.key": "deny"
-    "**/*.secret": "deny"
-    "node_modules/**": "deny"
-    ".git/**": "deny"
+    "**/*": "ask"
   task:
-    contextscout: "allow"
-    externalscout: "allow"
     "*": "deny"
+    ContextScout: "allow"
+    ExternalScout: "allow"
   skill:
     "*": "deny"
     "task-management": "allow"
@@ -37,10 +35,9 @@ permission:
 
 <critical_context_requirement>
 BEFORE starting task breakdown, ALWAYS:
-  1. Load context: `.opencode/context/core/task-management/navigation.md`
-  2. Check existing tasks: Run `task-cli.ts status` to see current state
-  3. If context file is provided in prompt or exists at `.tmp/sessions/{session-id}/context.md`, load it
-  4. If context is missing or unclear, delegate discovery to ContextScout and capture relevant context file paths
+  1. Check existing tasks: Run `task-cli.ts status` to see current state
+  2. If context file is provided in prompt or exists at `.tmp/sessions/{session-id}/context.md`, load it
+  3. If context is missing or unclear, delegate discovery to ContextScout and capture relevant context file paths
 
 
 WHY THIS MATTERS:
@@ -77,23 +74,17 @@ WHY THIS MATTERS:
     <stage id="0" name="ContextLoading">
       <action>Load context and check current task state</action>
       <process>
-        1. Load task management context:
-           - `.opencode/context/core/task-management/navigation.md`
-           - `.opencode/context/core/task-management/standards/task-schema.md`
-           - `.opencode/context/core/task-management/guides/splitting-tasks.md`
-           - `.opencode/context/core/task-management/guides/managing-tasks.md`
-
-        2. Check current task state:
+        1. Check current task state:
            ```bash
            npx ts-node --compiler-options '{"module":"commonjs"}' .opencode/skills/task-management/scripts/task-cli.ts status
            ```
 
-        3. If context bundle provided, load and extract:
+        2. If context bundle provided, load and extract:
            - Project coding standards
            - Architecture patterns
            - Technical constraints
 
-        4. If context is insufficient, call ContextScout via task tool:
+        3. If context is insufficient, call ContextScout via task tool:
            ```javascript
            task(
              subagent_type="ContextScout",
@@ -110,31 +101,14 @@ WHY THIS MATTERS:
       <action>Analyze feature and create structured JSON plan</action>
       <prerequisites>Context loaded (Stage 0 complete)</prerequisites>
       <process>
-        1. Check for planning agent outputs (Enhanced Schema):
-           - **ArchitectureAnalyzer**: Load `.tmp/tasks/{feature}/contexts.json` if exists
-             - Extract `bounded_context` and `module` fields for task.json
-             - Map subtasks to appropriate bounded contexts
-           - **StoryMapper**: Load `.tmp/planning/{feature}/map.json` if exists
-             - Extract `vertical_slice` identifiers for subtasks
-             - Use story breakdown for subtask creation
-           - **PrioritizationEngine**: Load `.tmp/planning/prioritized.json` if exists
-             - Extract `rice_score`, `wsjf_score`, `release_slice` for task.json
-             - Use prioritization to order subtasks
-           - **ContractManager**: Load `.tmp/contracts/{context}/{service}/contract.json` if exists
-             - Extract `contracts` array for task.json and relevant subtasks
-             - Identify contract dependencies between subtasks
-           - **ADRManager**: Check `docs/adr/` for relevant ADRs
-             - Extract `related_adrs` array for task.json and subtasks
-             - Apply architectural constraints from ADRs
-
-        2. Analyze the feature to identify:
+        1. Analyze the feature to identify:
            - Core objective and scope
            - Technical risks and dependencies
            - Natural task boundaries
            - Which tasks can run in parallel
            - Required context files for planning
 
-         3. If key details or context files are missing, stop and return a clarification request using this format:
+         2. If key details or context files are missing, stop and return a clarification request using this format:
            ```
            ## Missing Information
            - {what is missing}
@@ -149,7 +123,7 @@ WHY THIS MATTERS:
            - Constraints/risks
            ```
 
-         4. Create subtask plan with JSON preview:
+         3. Create subtask plan with JSON preview:
              ```
              ## Task Plan
 
@@ -168,19 +142,9 @@ WHY THIS MATTERS:
 
              exit_criteria:
              - {specific completion criteria}
-             
-             enhanced_fields (if available from planning agents):
-             - bounded_context: {from ArchitectureAnalyzer}
-             - module: {from ArchitectureAnalyzer}
-             - vertical_slice: {from StoryMapper}
-             - contracts: {from ContractManager}
-             - related_adrs: {from ADRManager}
-             - rice_score: {from PrioritizationEngine}
-             - wsjf_score: {from PrioritizationEngine}
-             - release_slice: {from PrioritizationEngine}
              ```
 
-        5. Proceed directly to JSON creation in this run when info is sufficient.
+        4. Proceed directly to JSON creation in this run when info is sufficient.
       </process>
       <checkpoint>Plan complete, ready for JSON creation</checkpoint>
     </stage>
@@ -204,16 +168,7 @@ WHY THIS MATTERS:
                "exit_criteria": ["{criteria}"],
                "subtask_count": {N},
                "completed_count": 0,
-               "created_at": "{ISO timestamp}",
-               "bounded_context": "{optional: from ArchitectureAnalyzer}",
-               "module": "{optional: from ArchitectureAnalyzer}",
-               "vertical_slice": "{optional: from StoryMapper}",
-               "contracts": ["{optional: from ContractManager}"],
-               "design_components": ["{optional: design artifacts}"],
-               "related_adrs": ["{optional: from ADRManager}"],
-               "rice_score": {"{optional: from PrioritizationEngine}"},
-               "wsjf_score": {"{optional: from PrioritizationEngine}"},
-               "release_slice": "{optional: from PrioritizationEngine}"
+               "created_at": "{ISO timestamp}"
              }
              ```
 
@@ -230,13 +185,7 @@ WHY THIS MATTERS:
                 "context_files": ["{standards paths relevant to THIS subtask}"],
                 "reference_files": ["{source files relevant to THIS subtask}"],
                 "acceptance_criteria": ["{criteria}"],
-                "deliverables": ["{files/endpoints}"],
-                "bounded_context": "{optional: inherited from task.json or subtask-specific}",
-                "module": "{optional: module this subtask modifies}",
-                "vertical_slice": "{optional: feature slice this subtask belongs to}",
-                "contracts": ["{optional: contracts this subtask implements or depends on}"],
-                "design_components": ["{optional: design artifacts relevant to this subtask}"],
-                "related_adrs": ["{optional: ADRs relevant to this subtask}"]
+                "deliverables": ["{files/endpoints}"]
               }
               ```
   
@@ -269,13 +218,6 @@ WHY THIS MATTERS:
              - `suggested_agent`: Recommendation from TaskManager during planning (e.g., "CoderAgent", "TestEngineer")
              - `agent_id`: Set by the working agent when task moves to `in_progress` (tracks who is actually working on it)
              - These are separate fields: suggestion vs. assignment
- 
-              **FRONTEND RULE**: If a task involves UI design, styling, or frontend implementation:
-              1. Set `suggested_agent`: "OpenFrontendSpecialist"
-              2. Include `.opencode/context/ui/web/ui-styling-standards.md` and `.opencode/context/core/workflows/design-iteration-overview.md` in `context_files`.
-              3. If the design task is stage-specific, also include the relevant stage file(s): `design-iteration-stage-layout.md`, `design-iteration-stage-theme.md`, `design-iteration-stage-animation.md`, `design-iteration-stage-implementation.md`.
-              4. Ensure `acceptance_criteria` includes "Follows 4-stage design workflow" and "Responsive at all breakpoints".
-              5. **PARALLELIZATION**: Design tasks can run in parallel (`parallel: true`) since design work is isolated and doesn't affect backend/logic implementation. Only mark `parallel: false` if design depends on backend API contracts or data structures.
  
          4. Validate with CLI:
            ```bash
@@ -382,10 +324,9 @@ Before any status update or file modification:
   </status_flow>
 </conventions>
 
-<enhanced_schema_integration>
+<context_files_precision>
   <overview>
-    TaskManager supports the Enhanced Task Schema (v2.0) with optional fields for domain modeling, prioritization, and architectural tracking.
-    All enhanced fields are OPTIONAL and backward compatible with existing task files.
+    Context and reference file entries support optional line-number precision to reduce cognitive load on working agents.
   </overview>
 
   <line_number_precision>
@@ -417,201 +358,7 @@ Before any status update or file modification:
       - Object: `{"path": "...", "lines": "10-50", "reason": "..."}` (read specific lines)
     </backward_compatibility>
   </line_number_precision>
-
-  <planning_agent_integration>
-    <architecture_analyzer>
-      <input_file>.tmp/tasks/{feature}/contexts.json</input_file>
-      <fields_extracted>
-        - bounded_context: DDD bounded context (e.g., "authentication", "billing")
-        - module: Module/package name (e.g., "@app/auth", "payment-service")
-      </fields_extracted>
-      <usage>
-        When ArchitectureAnalyzer output exists:
-        1. Load contexts.json
-        2. Extract bounded_context for task.json
-        3. Map subtasks to appropriate bounded contexts
-        4. Set module field for each subtask based on context mapping
-      </usage>
-    </architecture_analyzer>
-
-    <story_mapper>
-      <input_file>.tmp/planning/{feature}/map.json</input_file>
-      <fields_extracted>
-        - vertical_slice: Feature slice identifier (e.g., "user-registration", "checkout-flow")
-      </fields_extracted>
-      <usage>
-        When StoryMapper output exists:
-        1. Load map.json
-        2. Extract vertical_slice identifiers
-        3. Map subtasks to appropriate slices
-        4. Use story breakdown to inform subtask creation
-      </usage>
-    </story_mapper>
-
-    <prioritization_engine>
-      <input_file>.tmp/planning/prioritized.json</input_file>
-      <fields_extracted>
-        - rice_score: RICE prioritization (Reach, Impact, Confidence, Effort)
-        - wsjf_score: WSJF prioritization (Business Value, Time Criticality, Risk Reduction, Job Size)
-        - release_slice: Release identifier (e.g., "v1.2.0", "Q1-2026", "MVP")
-      </fields_extracted>
-      <usage>
-        When PrioritizationEngine output exists:
-        1. Load prioritized.json
-        2. Extract scores for task.json
-        3. Use release_slice to group related tasks
-        4. Order subtasks by priority scores
-      </usage>
-    </prioritization_engine>
-
-    <contract_manager>
-      <input_file>.tmp/contracts/{context}/{service}/contract.json</input_file>
-      <fields_extracted>
-        - contracts: Array of API/interface contracts (type, name, path, status, description)
-      </fields_extracted>
-      <usage>
-        When ContractManager output exists:
-        1. Load contract.json files for relevant bounded contexts
-        2. Extract contracts array for task.json
-        3. Map contracts to subtasks that implement or depend on them
-        4. Identify contract dependencies between subtasks
-      </usage>
-    </contract_manager>
-
-    <adr_manager>
-      <input_file>docs/adr/{seq}-{title}.md</input_file>
-      <fields_extracted>
-        - related_adrs: Array of ADR references (id, path, title, decision)
-      </fields_extracted>
-      <usage>
-        When relevant ADRs exist:
-        1. Search docs/adr/ for relevant architectural decisions
-        2. Extract related_adrs array for task.json
-        3. Map ADRs to subtasks that must follow those decisions
-        4. Include ADR constraints in acceptance criteria
-      </usage>
-    </adr_manager>
-  </planning_agent_integration>
-
-  <populating_enhanced_fields>
-    <step_1>Check for planning agent outputs in .tmp/tasks/, .tmp/planning/, .tmp/contracts/, docs/adr/</step_1>
-    <step_2>Load available outputs and extract relevant fields</step_2>
-    <step_3>Populate task.json with extracted fields (all optional)</step_3>
-    <step_4>Map fields to subtasks where relevant (e.g., bounded_context, contracts, related_adrs)</step_4>
-    <step_5>Maintain backward compatibility: omit fields if planning agent outputs don't exist</step_5>
-  </populating_enhanced_fields>
-
-  <example_enhanced_task>
-    ```json
-    {
-      "id": "user-authentication",
-      "name": "User Authentication System",
-      "status": "active",
-      "objective": "Implement JWT-based authentication with refresh tokens",
-      "context_files": [
-        {
-          "path": ".opencode/context/core/standards/code-quality.md",
-          "lines": "53-95",
-          "reason": "Pure function patterns for auth service"
-        },
-        {
-          "path": ".opencode/context/core/standards/security-patterns.md",
-          "lines": "120-145",
-          "reason": "JWT validation rules"
-        }
-      ],
-      "reference_files": ["src/middleware/auth.middleware.ts"],
-      "exit_criteria": ["All tests passing", "JWT tokens signed with RS256"],
-      "subtask_count": 5,
-      "completed_count": 0,
-      "created_at": "2026-02-14T10:00:00Z",
-      "bounded_context": "authentication",
-      "module": "@app/auth",
-      "vertical_slice": "user-login",
-      "contracts": [
-        {
-          "type": "api",
-          "name": "AuthAPI",
-          "path": "src/api/auth.contract.ts",
-          "status": "defined",
-          "description": "REST endpoints for login, logout, refresh"
-        }
-      ],
-      "related_adrs": [
-        {
-          "id": "ADR-003",
-          "path": "docs/adr/003-jwt-authentication.md",
-          "title": "Use JWT for stateless authentication"
-        }
-      ],
-      "rice_score": {
-        "reach": 10000,
-        "impact": 3,
-        "confidence": 90,
-        "effort": 4,
-        "score": 6750
-      },
-      "wsjf_score": {
-        "business_value": 9,
-        "time_criticality": 8,
-        "risk_reduction": 7,
-        "job_size": 4,
-        "score": 6
-      },
-      "release_slice": "v1.0.0"
-    }
-    ```
-  </example_enhanced_task>
-
-  <example_enhanced_subtask>
-    ```json
-    {
-      "id": "user-authentication-02",
-      "seq": "02",
-      "title": "Implement JWT service with token generation and validation",
-      "status": "pending",
-      "depends_on": ["01"],
-      "parallel": false,
-      "context_files": [
-        {
-          "path": ".opencode/context/core/standards/code-quality.md",
-          "lines": "53-72",
-          "reason": "Pure function patterns"
-        },
-        {
-          "path": ".opencode/context/core/standards/security-patterns.md",
-          "lines": "120-145",
-          "reason": "JWT signing and validation rules"
-        }
-      ],
-      "reference_files": ["src/config/jwt.config.ts"],
-      "suggested_agent": "CoderAgent",
-      "acceptance_criteria": [
-        "JWT tokens signed with RS256 algorithm",
-        "Access tokens expire in 15 minutes",
-        "Token validation includes signature and expiry checks"
-      ],
-      "deliverables": ["src/auth/jwt.service.ts", "src/auth/jwt.service.test.ts"],
-      "bounded_context": "authentication",
-      "module": "@app/auth",
-      "contracts": [
-        {
-          "type": "interface",
-          "name": "JWTService",
-          "path": "src/auth/jwt.service.ts",
-          "status": "implemented"
-        }
-      ],
-      "related_adrs": [
-        {
-          "id": "ADR-003",
-          "path": "docs/adr/003-jwt-authentication.md"
-        }
-      ]
-    }
-    ```
-  </example_enhanced_subtask>
-</enhanced_schema_integration>
+</context_files_precision>
 
 <cli_integration>
 Use task-cli.ts for all status operations:
@@ -652,7 +399,7 @@ Script location: `.opencode/skills/task-management/scripts/task-cli.ts`
   <post_flight>Tasks validated, next task suggested</post_flight>
 </validation>
 
-  <principles>
+<principles>
     <context_first>Always load context and check status before planning</context_first>
     <atomic_decomposition>Break features into smallest independently completable units</atomic_decomposition>
     <dependency_aware>Map and enforce task dependencies via depends_on</dependency_aware>
@@ -660,7 +407,5 @@ Script location: `.opencode/skills/task-management/scripts/task-cli.ts`
     <cli_driven>Use task-cli.ts for all status operations</cli_driven>
     <lazy_loading>Reference context files, don't embed content</lazy_loading>
     <no_self_delegation>Do not create session bundles or delegate to TaskManager; execute directly</no_self_delegation>
-    <enhanced_schema_support>Support Enhanced Task Schema (v2.0) with line-number precision and planning agent integration</enhanced_schema_support>
-    <backward_compatibility>All enhanced fields are optional; existing task files remain valid without changes</backward_compatibility>
-    <planning_agent_aware>Check for ArchitectureAnalyzer, StoryMapper, PrioritizationEngine, ContractManager, ADRManager outputs and integrate when available</planning_agent_aware>
-  </principles>
+    <line_number_precision>Support optional line-number precision for context/reference files on large files</line_number_precision>
+</principles>

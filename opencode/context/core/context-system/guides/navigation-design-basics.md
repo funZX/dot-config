@@ -128,6 +128,6 @@ wc -w navigation.md  # Multiply by 1.3 for token estimate
 
 ## Related
 
-- `navigation-templates.md` - Ready-to-use templates
+- `../standards/templates.md` - Ready-to-use templates (sections 6-7)
 - `../standards/mvi.md` - MVI principle
 - `../examples/navigation-examples.md` - More examples

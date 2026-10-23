@@ -43,7 +43,8 @@ All files are in `.opencode/context/core/` with organized subfolders:
 
 ### Workflows (Process Templates + Review)
 - `workflows/task-delegation-basics.md` - Delegation template [high]
-- `workflows/feature-breakdown.md` - Complex task breakdown [high]
+- `workflows/feature-breakdown.md` - Manual breakdown checklist, no subagent delegation [high]
+- `workflows/component-planning.md` - Architecture roadmap layer above TaskManager, for multi-layer features being delegated [high]
 - `workflows/session-management.md` - Session lifecycle [medium]
 - `workflows/code-review.md` - Code review guidelines [high]
 
@@ -106,6 +107,7 @@ All files are in `.opencode/context/core/` with organized subfolders:
 - Tasks with 4+ files
 - Estimated effort >60 minutes
 - Complex dependencies
+- **Only when NOT delegating to subagents** — otherwise use TaskManager (see file for details)
 
 ### .opencode/context/core/workflows/session-management.md
 - Session lifecycle
@@ -119,46 +121,14 @@ All files are in `.opencode/context/core/` with organized subfolders:
 
 ## Temporary Context (Session-Specific)
 
-When delegating, create focused task context:
+When delegating, create focused task context.
 
-**Location**: `.tmp/sessions/{timestamp}-{task-slug}/context.md`
+> **Canonical template**: See [`../workflows/task-delegation-basics.md`](../workflows/task-delegation-basics.md#template-structure)
+> for the authoritative `context.md` structure (`Context Files` / `Reference Files` / `External Context Fetched` /
+> `Components` / `Constraints` / `Exit Criteria` / `Progress`). Use that template, not an ad-hoc one, so
+> TaskManager and working agents can parse it consistently.
 
-**Structure**:
-```markdown
-# Task Context: {Task Name}
-
-Session ID: {id}
-Created: {timestamp}
-Status: in_progress
-
-## Current Request
-{What user asked for}
-
-## Requirements
-- {requirement 1}
-- {requirement 2}
-
-## Decisions Made
-- {decision 1}
-
-## Files to Modify/Create
-- {file 1} - {purpose}
-
-## Static Context Available
-- .opencode/context/core/standards/code-quality.md
-- .opencode/context/core/standards/test-coverage.md
-
-## Constraints/Notes
-{Important context}
-
-## Progress
-- [ ] {task 1}
-- [ ] {task 2}
-
----
-**Instructions for Subagent:**
-{Specific instructions}
-```
+**Location**: `.tmp/sessions/{YYYY-MM-DD}-{task-slug}/context.md`
 
 ## Session Management
 

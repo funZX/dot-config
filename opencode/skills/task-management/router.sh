@@ -8,7 +8,6 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CLI_SCRIPT="$SCRIPT_DIR/scripts/task-cli.ts"
-MIGRATE_SCRIPT="$SCRIPT_DIR/scripts/migrate-schema.ts"
 
 # Show help
 show_help() {
@@ -24,16 +23,11 @@ COMMANDS:
   parallel [feature]            Show parallelizable tasks
   deps <feature> <seq>          Show dependency tree
   blocked [feature]             Show blocked tasks
-  complete <feature> <seq> "msg" Mark subtask complete
+  complete <feature> <seq> "msg" [--force]
+                                Mark subtask complete (--force overrides
+                                unmet dependencies)
   validate [feature]            Validate JSON files
-  context <feature>             Show bounded context breakdown
-  contracts <feature>           Show contract dependencies
-  migrate <feature> [options]   Migrate to enhanced schema
   help                          Show this help message
-
-MIGRATION OPTIONS:
-  --dry-run                     Preview migration changes
-  --lines-only                  Add only line-number precision
 
 EXAMPLES:
   ./router.sh status
@@ -41,11 +35,8 @@ EXAMPLES:
   ./router.sh next
   ./router.sh deps my-feature 05
   ./router.sh complete my-feature 05 "Implemented auth module"
+  ./router.sh complete my-feature 05 "Hotfix, deps pending" --force
   ./router.sh validate
-  ./router.sh context my-feature
-  ./router.sh contracts my-feature
-  ./router.sh migrate my-feature
-  ./router.sh migrate my-feature --dry-run
 
 FEATURES:
   ✓ Track progress across all features
@@ -53,9 +44,6 @@ FEATURES:
   ✓ Identify blocked tasks
   ✓ Mark subtasks complete with summaries
   ✓ Validate task integrity
-  ✓ Show bounded context breakdown
-  ✓ Show contract dependencies
-  ✓ Migrate to enhanced schema
 
 For more info, see: .opencode/skills/task-management/SKILL.md
 HELP
@@ -98,11 +86,10 @@ PROJECT_ROOT="$(find_project_root)"
 
 # Route commands
 case "$1" in
-  migrate)
-    cd "$PROJECT_ROOT" && npx ts-node "$MIGRATE_SCRIPT" "$@"
-    ;;
   *)
     # Run the task CLI with all arguments
-    cd "$PROJECT_ROOT" && npx ts-node "$CLI_SCRIPT" "$@"
+    # Pin majors: bare `npx ts-node` resolves typescript@7, whose rewritten
+    # compiler API is incompatible with ts-node@10 (undefined 'fileExists').
+    cd "$PROJECT_ROOT" && npx --yes -p ts-node@10 -p typescript@5 ts-node "$CLI_SCRIPT" "$@"
     ;;
 esac

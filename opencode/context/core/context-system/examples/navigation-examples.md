@@ -1,10 +1,10 @@
-<!-- Context: core/navigation-examples | Priority: high | Version: 1.0 | Updated: 2026-02-15 -->
+<!-- Context: core/navigation-examples | Priority: high | Version: 1.2 | Updated: 2026-10-23 -->
 
 # Examples: Navigation Files
 
 **Purpose**: Real-world examples of good navigation files
 
-**Last Updated**: 2026-01-08
+**Last Updated**: 2026-10-23
 
 ---
 
@@ -79,278 +79,7 @@ openagents-repo/
 
 ---
 
-## Example 2: Category Navigation (Concern-Based)
-
-**File**: `development/navigation.md`
-
-**Pattern**: Concern-Based (multi-technology)
-
-**Token count**: ~280 tokens
-
-```markdown
-# Development Navigation
-
-**Purpose**: Software development across all stacks
-
----
-
-## Structure
-
-```
-development/
-├── navigation.md
-├── ui-navigation.md           # Specialized
-├── backend-navigation.md      # Specialized
-│
-├── principles/
-│   ├── clean-code.md
-│   └── api-design.md
-│
-├── frontend/
-│   ├── react/
-│   └── vue/
-│
-├── backend/
-│   ├── api-patterns/
-│   ├── nodejs/
-│   └── authentication/
-│
-└── data/
-    ├── sql-patterns/
-    └── orm-patterns/
-```
-
----
-
-## Quick Routes
-
-| Task | Path |
-|------|------|
-| **UI/Frontend** | `ui-navigation.md` |
-| **Backend/API** | `backend-navigation.md` |
-| **Clean code** | `principles/clean-code.md` |
-| **API design** | `principles/api-design.md` |
-
----
-
-## By Concern
-
-**Principles** → Universal development practices
-**Frontend** → React, Vue, state management
-**Backend** → APIs, Node.js, Python, auth
-**Data** → SQL, NoSQL, ORMs
-```
-
-**Why this works**:
-- ✅ Token-efficient (~280 tokens)
-- ✅ Shows specialized navigation files
-- ✅ Organized by concern (frontend, backend, data)
-- ✅ Points to specialized navigation for complex workflows
-
----
-
-## Example 3: Specialized Navigation
-
-**File**: `development/ui-navigation.md`
-
-**Pattern**: Cross-cutting (spans multiple categories)
-
-**Token count**: ~270 tokens
-
-```markdown
-# UI Development Navigation
-
-**Scope**: Frontend code + visual design
-
----
-
-## Structure
-
-```
-Frontend Code (development/frontend/):
-├── react/
-│   ├── hooks-patterns.md
-│   ├── component-architecture.md
-│   └── tanstack/
-│       ├── query-patterns.md
-│       └── router-patterns.md
-└── vue/
-
-Visual Design (ui/web/):
-├── animation-patterns.md
-├── ui-styling-standards.md
-└── design-systems.md
-```
-
----
-
-## Quick Routes
-
-| Task | Path |
-|------|------|
-| **React patterns** | `frontend/react/hooks-patterns.md` |
-| **TanStack Query** | `frontend/react/tanstack/query-patterns.md` |
-| **Animations** | `../../ui/web/animation-patterns.md` |
-| **Styling** | `../../ui/web/ui-styling-standards.md` |
-
----
-
-## By Framework
-
-**React** → `frontend/react/`
-**Vue** → `frontend/vue/`
-**TanStack** → `frontend/react/tanstack/`
-
-## By Concern
-
-**Code patterns** → `development/frontend/`
-**Visual design** → `ui/web/`
-```
-
-**Why this works**:
-- ✅ Token-efficient (~270 tokens)
-- ✅ Spans multiple categories (development/ + ui/)
-- ✅ Task-focused (UI development)
-- ✅ Shows both code and design paths
-
----
-
-## Example 4: Subcategory Navigation
-
-**File**: `development/backend/navigation.md`
-
-**Pattern**: Concern-based subcategory
-
-**Token count**: ~240 tokens
-
-```markdown
-# Backend Development Navigation
-
-**Scope**: Server-side, APIs, databases, auth
-
----
-
-## Structure
-
-```
-backend/
-├── navigation.md
-│
-├── api-patterns/
-│   ├── rest-design.md
-│   ├── graphql-design.md
-│   └── grpc-patterns.md
-│
-├── nodejs/
-│   ├── express-patterns.md
-│   └── fastify-patterns.md
-│
-├── python/
-│   └── fastapi-patterns.md
-│
-└── authentication/
-    ├── jwt-patterns.md
-    └── oauth-patterns.md
-```
-
----
-
-## Quick Routes
-
-| Task | Path |
-|------|------|
-| **REST API** | `api-patterns/rest-design.md` |
-| **GraphQL** | `api-patterns/graphql-design.md` |
-| **Node.js** | `nodejs/express-patterns.md` |
-| **Auth (JWT)** | `authentication/jwt-patterns.md` |
-
----
-
-## By Approach
-
-**REST** → `api-patterns/rest-design.md`
-**GraphQL** → `api-patterns/graphql-design.md`
-
-## By Language
-
-**Node.js** → `nodejs/`
-**Python** → `python/`
-```
-
-**Why this works**:
-- ✅ Token-efficient (~240 tokens)
-- ✅ Organized by approach first (REST, GraphQL)
-- ✅ Then by tech (Node.js, Python)
-- ✅ Functional concerns separate (authentication/)
-
----
-
-## Example 5: Full-Stack Navigation
-
-**File**: `development/fullstack-navigation.md`
-
-**Pattern**: Workflow-focused
-
-**Token count**: ~300 tokens
-
-```markdown
-# Full-Stack Development Navigation
-
-**Scope**: End-to-end application development
-
----
-
-## Common Stacks
-
-### MERN (MongoDB, Express, React, Node)
-```
-Frontend: development/frontend/react/
-Backend:  development/backend/nodejs/express-patterns.md
-Data:     development/data/nosql-patterns/mongodb.md
-API:      development/backend/api-patterns/rest-design.md
-```
-
-### T3 Stack (Next.js, tRPC, Prisma, Tailwind)
-```
-Frontend: development/frontend/react/ + ui/web/ui-styling-standards.md
-Backend:  development/backend/nodejs/ + api-patterns/trpc-patterns.md
-Data:     development/data/orm-patterns/prisma.md
-```
-
----
-
-## Quick Routes
-
-| Layer | Navigate To |
-|-------|-------------|
-| **Frontend** | `ui-navigation.md` |
-| **Backend** | `backend-navigation.md` |
-| **Data** | `data/navigation.md` |
-
----
-
-## Common Workflows
-
-**New API endpoint**:
-1. `principles/api-design.md` (principles)
-2. `backend/api-patterns/rest-design.md` (approach)
-3. `backend/nodejs/express-patterns.md` (implementation)
-
-**New React feature**:
-1. `frontend/react/component-architecture.md` (structure)
-2. `frontend/react/hooks-patterns.md` (logic)
-3. `ui/web/ui-styling-standards.md` (styling)
-```
-
-**Why this works**:
-- ✅ Token-efficient (~300 tokens)
-- ✅ Shows common tech stacks
-- ✅ Workflow-focused (how to build features)
-- ✅ Points to layer-specific navigation
-
----
-
-## Example 6: Minimal Navigation
+## Example 2: Minimal Navigation
 
 **File**: `content/navigation.md`
 
@@ -486,8 +215,20 @@ React hooks allow you to use state and lifecycle features in functional componen
 
 ---
 
+## Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| Too many tokens | Remove verbose descriptions, shorten entries |
+| Hard to scan | Use tables instead of paragraphs |
+| Missing files | Add to structure and quick routes |
+| Unclear paths | Use relative paths, add brief descriptions |
+
+---
+
 ## Related
 
-- `../guides/navigation-design.md` - How to create navigation files
+- `../guides/navigation-design-basics.md` - How to create navigation files
 - `../guides/organizing-context.md` - How to choose organizational pattern
+- `../standards/templates.md` - Navigation file templates (sections 6-7)
 - `../standards/mvi.md` - Minimal Viable Information principle

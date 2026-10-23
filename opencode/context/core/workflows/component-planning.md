@@ -1,6 +1,22 @@
-<!-- Context: workflows/component-planning | Priority: high | Version: 1.0 -->
+<!-- Context: workflows/component-planning | Priority: high | Version: 1.1 | Updated: 2026-10-23 -->
 
 # Component-Based Planning Workflow
+
+> **Scope**: This workflow adds a high-level architecture/roadmap layer (`master-plan.md` +
+> `component-{name}.md`) ABOVE the actual task-tracking system. It is used by OpenCoder in
+> Stage 3/4 (InitSession/Plan) for features complex enough to need an architecture narrative
+> before breakdown.
+>
+> **This does not replace TaskManager.** Once a component is ready to execute, its atomic steps
+> still go through `TaskManager` to produce `.tmp/tasks/{feature}/task.json` +
+> `subtask_NN.json` — the only structure `task-cli.ts`, `CoderAgent`, and `BatchExecutor`
+> understand. `master-plan.md`/`component-{name}.md` are narrative planning artifacts for human
+> review and session continuity, not an alternative execution tracker.
+>
+> **Related**: [`feature-breakdown.md`](./feature-breakdown.md) — a simpler, single-level markdown
+> breakdown for work that won't be delegated to subagents at all (no TaskManager involved). Use
+> this file instead when the feature spans multiple layers/components and some parts will be
+> delegated for parallel execution.
 
 ## Overview
 This workflow replaces "Monolithic Planning" (planning everything at once) with "Iterative Component Planning". It is designed for complex features that require breaking down into functional units.
@@ -48,8 +64,8 @@ Don't try to write a detailed plan for the entire system upfront. Create a high-
     *   List the atomic implementation steps.
 3.  **Approve**: Show the detailed component plan to the user.
 4.  **Execute**:
-    *   Load `component-{name}.md` into `TodoWrite`.
-    *   Implement -> Validate -> Check off.
+    *   If executing directly (no delegation): Load `component-{name}.md` into `TodoWrite`. Implement -> Validate -> Check off.
+    *   If delegating to subagents: Hand the component's atomic steps to `TaskManager` to create `.tmp/tasks/{feature}/subtask_NN.json` files — this is what `CoderAgent`/`BatchExecutor` actually execute against.
 5.  **Integrate**: Update `master-plan.md` to mark component as complete.
 
 ---

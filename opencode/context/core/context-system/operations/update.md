@@ -232,6 +232,5 @@ Rollback available if needed.
 
 ## Related
 
-- guides/workflows.md - Interactive diff examples
 - standards/mvi.md - Maintain MVI format
 - operations/error.md - Adding migration notes

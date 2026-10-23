@@ -1,3 +1,5 @@
+<!-- Context: core/templates | Priority: critical | Version: 1.0 | Updated: 2026-02-15 -->
+
 # Context File Templates
 
 **Purpose**: Standard formats for all context file types

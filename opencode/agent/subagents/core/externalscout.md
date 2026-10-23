@@ -7,6 +7,18 @@ permission:
   read:
     "**/*": "deny"
     ".tmp/external-context/**": "allow"
+  write:
+    "**/*": "deny"
+    ".tmp/external-context/**": "allow"
+  edit:
+    "**/*": "deny"
+    ".tmp/external-context/**": "allow"
+  glob:
+    "**/*": "deny"
+    ".tmp/external-context/**": "allow"
+  grep:
+    "**/*": "deny"
+    ".tmp/external-context/**": "allow"
   bash:
     "*": "deny"
     "jq *": "allow"
@@ -70,10 +82,8 @@ permission:
 </critical_rules>
 
 ---
-# OpenCode Agent Configuration
-# Metadata (id, name, category, type, version, author, tags, dependencies) is stored in:
-# .opencode/config/agent-metadata.json
 
+<execution_priority>
   <tier level="1" desc="Critical Operations">
     - @check_cache_first: Check .tmp/external-context/ before fetching
     - @tool_usage: Use ONLY allowed tools
@@ -97,6 +107,7 @@ permission:
     Stage 0 (CheckCache) should be fast - if cached, skip fetching
     Stage 4 (PersistToTemp) is MANDATORY and cannot be skipped under any circumstances
   </conflict_resolution>
+</execution_priority>
 ---
 
 ## Workflow
@@ -218,50 +229,57 @@ permission:
   </stage>
 </workflow_execution>
 
----
-# OpenCode Agent Configuration
-# Metadata (id, name, category, type, version, author, tags, dependencies) is stored in:
-# .opencode/config/agent-metadata.json
 
----
 
 ## Quick Reference
 
 ExternalScout can fetch documentation for any library or framework with public documentation.
 
----
-# OpenCode Agent Configuration
-# Metadata (id, name, category, type, version, author, tags, dependencies) is stored in:
-# .opencode/config/agent-metadata.json
+### Cache Layout
 
-    ├── cloudflare-deployment.md
-    ├── server-functions.md
-    └── file-routing.md
-   - `fetched:` timestamp (is it < 7 days old?)
-   - `topic:` (does it match user's query?)
-   - `tech_stack:` (does it match detected framework?)
+```
+.tmp/external-context/
+├── .manifest.json
+└── {package-name}/
+    ├── {topic-a}.md
+    ├── {topic-b}.md
+    └── {topic-c}.md
+```
+
+### Cache Staleness Check (Stage 0)
+
+Read the frontmatter of a candidate file and check:
+
+- `fetched:` — is it less than 7 days old?
+- `topic:` — does it match the user's query?
+- `tech_stack:` — does it match the detected framework?
+
+If all three pass, return the cached file. Otherwise re-fetch.
+
+### Manifest Format
+
+`.tmp/external-context/.manifest.json`, updated in Stage 4:
+
+```json
+{
   "version": "1.0",
   "last_updated": "2026-01-30T10:30:00Z",
   "libraries": {
-    "tanstack-query": {
+    "{package-name}": {
       "files": [
         {
-          "filename": "nextjs-ssr-hydration.md",
-          "topic": "SSR hydration",
-          "tech_stack": "Framework name",
-          "fetched": "2026-01-28T14:20:00Z",
-          "source": "Official docs"
-        },
-        {
-          "filename": "tanstack-start-integration.md",
-          "topic": "server functions integration",
-          "tech_stack": "Framework name",
+          "filename": "{topic}.md",
+          "topic": "{short topic description}",
+          "tech_stack": "{framework, if detected}",
           "fetched": "2026-01-30T10:15:00Z",
           "source": "Official docs"
         }
       ]
     }
   }
+}
+```
+
 ---
 
 ## Error Handling
@@ -271,12 +289,7 @@ If fetching from official docs fails:
 2. Return error with known official docs link
 3. Suggest checking `.opencode/context/` for cached docs
 
----
-# OpenCode Agent Configuration
-# Metadata (id, name, category, type, version, author, tags, dependencies) is stored in:
-# .opencode/config/agent-metadata.json
 
----
 
 ## Success Criteria
 
@@ -294,8 +307,4 @@ You succeed when ALL of these are complete:
 - Skip Stage 4 (PersistToTemp)
 - Return summary without file locations
 
----
-# OpenCode Agent Configuration
-# Metadata (id, name, category, type, version, author, tags, dependencies) is stored in:
-# .opencode/config/agent-metadata.json
 

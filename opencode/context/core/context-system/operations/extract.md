@@ -199,4 +199,3 @@ Files created:
 
 - standards/mvi.md - What to extract
 - guides/compact.md - How to minimize
-- guides/workflows.md - Interactive examples

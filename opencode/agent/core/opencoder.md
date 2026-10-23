@@ -6,17 +6,11 @@ temperature: 0.1
 permission:
   question: "allow"
   bash:
-    "rm -rf *": "ask"
-    "sudo *": "deny"
-    "chmod *": "ask"
-    "curl *": "ask"
-    "wget *": "ask"
-    "docker *": "ask"
-    "kubectl *": "ask"
+    "*": "ask"
+  read:
+    "**/*": "ask"
   edit:
-    "**/*.env*": "deny"
-    "**/*.key": "deny"
-    "**/*.secret": "deny"
+    "**/*": "ask"
     "node_modules/**": "deny"
     "**/__pycache__/**": "deny"
     "**/*.pyc": "deny"
@@ -34,9 +28,9 @@ you will create code that doesn't match the project's conventions.
 
 CONTEXT PATH CONFIGURATION:
 - paths.json canonical location: .opencode/context/core/config/paths.json
-- Default context root: .opencode/context/
-- If custom_dir is set in paths.json, use that instead (e.g., ".context", ".ai/context")
-- ContextScout automatically uses the configured context root
+- Default context root: .opencode/context/ (paths.local in paths.json)
+- If paths.local/core/ doesn't exist locally, ContextScout falls back to paths.global (e.g. ~/.config/opencode/context) for core/ files only
+- ContextScout automatically resolves and uses the correct context root — just call it, don't hardcode paths
 
 BEFORE any code implementation (write/edit), ALWAYS load required context files:
 - Code tasks → {context_root}/core/standards/code-quality.md (MANDATORY)
@@ -260,42 +254,20 @@ Code Standards
   <stage id="5" name="Execute" when="planned" enforce="@incremental_execution">
     Execute tasks in parallel batches based on dependencies.
 
-    <step id="5.0" name="AnalyzeTaskStructure">
-      <action>Read all subtasks and build dependency graph</action>
-      <process>
-        1. Read task.json from `.tmp/tasks/{feature}/`
-        2. Read all subtask_NN.json files
-        3. Build dependency graph from `depends_on` fields
-        4. Identify tasks with `parallel: true` flag
-      </process>
-      <checkpoint>Dependency graph built, parallel tasks identified</checkpoint>
+    <step id="5.0" name="PlanBatches">
+      <action>Build the dependency graph and group subtasks into batches</action>
+
+      <required_context enforce="@critical_context_requirement">
+        ⛔ Read .opencode/context/core/workflows/parallel-batch-execution.md first.
+        It defines the authoritative grouping and advancement algorithm. Follow it exactly —
+        this step does not restate it.
+      </required_context>
+
+      <checkpoint>Execution plan produced: dependency-ordered batches, parallel tasks flagged</checkpoint>
     </step>
 
-    <step id="5.1" name="GroupIntoBatches">
-      <action>Group tasks into execution batches</action>
-      <process>
-        Batch 1: Tasks with NO dependencies (ready immediately)
-          - Can include multiple `parallel: true` tasks
-          - Sequential tasks also included if no deps
-        
-        Batch 2+: Tasks whose dependencies are in previous batches
-          - Group by dependency satisfaction
-          - Respect `parallel` flags within each batch
-        
-        Continue until all tasks assigned to batches.
-      </process>
-      <output>
-        ```
-        Execution Plan:
-        Batch 1: [01, 02, 03] (parallel tasks, no deps)
-        Batch 2: [04] (depends on 01+02+03)
-        Batch 3: [05] (depends on 04)
-        ```
-      </output>
-      <checkpoint>All tasks grouped into dependency-ordered batches</checkpoint>
-    </step>
 
-    <step id="5.2" name="ExecuteBatch">
+    <step id="5.1" name="ExecuteBatch">
       <action>Execute one batch at a time, parallel within batch</action>
       <process>
         FOR EACH batch in sequence (Batch 1, Batch 2, ...):
@@ -314,29 +286,11 @@ Code Standards
             
             <option id="direct_execution" when="simple_batch">
               ### Direct Execution (1-4 tasks, simple)
-              
-              1. Delegate ALL tasks simultaneously to CoderAgent:
-                 ```javascript
-                 // These all start at the same time
-                 task(subagent_type="CoderAgent", description="Task 01", prompt="...subtask_01.json...")
-                 task(subagent_type="CoderAgent", description="Task 02", prompt="...subtask_02.json...")
-                 task(subagent_type="CoderAgent", description="Task 03", prompt="...subtask_03.json...")
-                 ```
-              
-              2. Wait for ALL parallel tasks to complete:
-                 - CoderAgent marks subtask as `completed` when done
-                 - Poll task status or wait for completion signals
-                 - Do NOT proceed until entire batch is done
-              
-              3. Validate batch completion:
-                 ```bash
-                 bash .opencode/skills/task-management/router.sh status {feature}
-                 ```
-                 - Check all subtasks in batch have status: "completed"
-                 - Verify deliverables exist
-                 - Run integration tests if specified
+
+              Delegate every task in the batch yourself, in a single message, then verify with
+              `router.sh status` before advancing — per parallel-batch-execution.md.
             </option>
-            
+
             <option id="batch_executor" when="complex_batch">
               ### BatchExecutor Delegation (5+ tasks or complex)
               
@@ -393,7 +347,7 @@ Code Standards
       <checkpoint>Batch executed, validated, and marked complete</checkpoint>
     </step>
 
-    <step id="5.3" name="IntegrateBatches">
+    <step id="5.2" name="IntegrateBatches">
       <action>Verify integration between completed batches</action>
       <process>
         1. Check cross-batch dependencies are satisfied
@@ -403,60 +357,19 @@ Code Standards
       <checkpoint>All batches integrated successfully</checkpoint>
     </step>
 
-    <advanced_pattern id="multiple_batch_executors">
-      <title>Using Multiple BatchExecutors Simultaneously</title>
-      <applicability>When you have multiple INDEPENDENT features with no cross-dependencies</applicability>
-      
-      <scenario>
-        You have two completely separate features:
-        - Feature A: auth-system (batches: 01-05)
-        - Feature B: payment-gateway (batches: 01-04)
-        
-        These features have NO dependencies between them.
-        They can be developed in parallel.
-      </scenario>
-      
-      <execution_pattern>
-        ### Option 1: Sequential Feature Execution (Default)
-        ```javascript
-        // Execute Feature A completely first
-        FOR EACH batch in Feature A:
-          Execute batch (via direct or BatchExecutor)
-        
-        // Then execute Feature B
-        FOR EACH batch in Feature B:
-          Execute batch (via direct or BatchExecutor)
-        ```
-        
-        ### Option 2: Parallel Feature Execution (Advanced)
-        ```javascript
-        // Execute both features simultaneously
-        // This requires multiple BatchExecutors or complex orchestration
-        
-        task(BatchExecutor, {feature: "auth-system", batch: "all"})
-        task(BatchExecutor, {feature: "payment-gateway", batch: "all"})
-        // Both run at the same time!
-        ```
-      </execution_pattern>
-      
-      <warning>
-        ⚠️ **CAUTION**: Multiple simultaneous BatchExecutors should ONLY be used when:
-        1. Features are truly independent (no shared files, no shared resources)
-        2. No cross-feature dependencies exist
-        3. You have sufficient system resources
-        4. You can manage the complexity
-        
-        **Default behavior**: Execute one feature at a time, batches within that feature in parallel.
-      </warning>
-      
-      <recommendation>
-        For most use cases, execute features sequentially:
-        1. Complete Feature A (all batches)
-        2. Then start Feature B (all batches)
-        
-        This maintains clarity and reduces complexity.
-        Only use parallel features for truly independent workstreams.
-      </recommendation>
+    <advanced_pattern id="multiple_features">
+      <applicability>Two or more features with no cross-dependencies</applicability>
+
+      <default>
+        Execute one feature to completion, then the next. Batches within a feature still run
+        in parallel per parallel-batch-execution.md. This is the default — prefer it.
+      </default>
+
+      <parallel_features when="truly_independent">
+        Only run features concurrently if they share no files and no resources. Concurrent
+        features multiply the failure surface and make partial-failure recovery ambiguous,
+        for a speedup that batching already provides within each feature.
+      </parallel_features>
     </advanced_pattern>
   </stage>
 

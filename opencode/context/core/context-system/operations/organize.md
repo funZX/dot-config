@@ -221,4 +221,3 @@ Agent suggests best option based on:
 ## Related
 
 - standards/structure.md - Folder organization rules
-- guides/workflows.md - Interactive examples

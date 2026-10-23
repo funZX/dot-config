@@ -1,3 +1,5 @@
+<!-- Context: core/frontmatter | Priority: critical | Version: 1.0 | Updated: 2026-02-15 -->
+
 # Frontmatter Format
 
 **Purpose**: HTML comment frontmatter format for all context files

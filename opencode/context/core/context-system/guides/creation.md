@@ -1,10 +1,10 @@
-<!-- Context: core/creation | Priority: high | Version: 1.1 | Updated: 2026-02-15 -->
+<!-- Context: core/creation | Priority: high | Version: 1.2 | Updated: 2026-10-23 -->
 
 # Context File Creation Standards
 
 **Purpose**: Ensure all context files follow the same format and structure
 
-**Last Updated**: 2026-02-15
+**Last Updated**: 2026-10-23
 
 ---
 
@@ -64,31 +64,17 @@ Add entry to navigation.md in parent directory
 
 ## Standard Metadata (Frontmatter)
 
-```html
-<!-- Context: {path} | Priority: {level} | Version: {X.Y} | Updated: {YYYY-MM-DD} -->
-```
-
-**Priority levels**: critical, high, medium, low
-
-**When to use**:
-- critical: Core system files, always needed
-- high: Frequently referenced, important patterns
-- medium: Useful but not essential
-- low: Nice-to-have, rarely needed
+Every context file starts with an HTML comment frontmatter line. See
+`../standards/frontmatter.md` for the exact format, components, and validation
+checklist.
 
 ---
 
 ## File Size Limits
 
-| File Type | Max Lines |
-|-----------|-----------|
-| Concept | 100 |
-| Example | 80 |
-| Guide | 150 |
-| Lookup | 100 |
-| Error | 150 |
-
-**Enforcement**: Strict. If over limit, split into multiple files or reference external docs.
+Strict per-type line limits apply. See `../standards/mvi.md` (`size_limits`
+rule) for the canonical numbers; if over limit, split into multiple files or
+reference external docs.
 
 ---
 
@@ -169,5 +155,6 @@ See templates.md for full templates.
 
 - templates.md - File templates
 - mvi.md - MVI principle
+- frontmatter.md - Frontmatter format
 - compact.md - Compression techniques
 - structure.md - Directory structure

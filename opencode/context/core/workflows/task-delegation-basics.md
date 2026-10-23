@@ -133,6 +133,5 @@ task(
 
 ## Related
 
-- `task-delegation-specialists.md` - When to delegate to which specialist
-- `task-delegation-caching.md` - Context caching for repeated patterns
+- `delegation.md` - Thin pointer to this file (kept for backward-compat links)
 - `../context-system/standards/mvi.md` - MVI principle

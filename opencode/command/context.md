@@ -115,7 +115,7 @@ When invoked without arguments: `/context`
 
 **`/context update for {topic}`**
 - Update context when APIs/frameworks change
-- **Reads**: `operations/update.md` + `guides/workflows.md`
+- **Reads**: `operations/update.md`
 
 **`/context error for {error}`**
 - Add recurring error to knowledge base
@@ -159,7 +159,7 @@ When invoked without arguments: `/context`
   </operation>
   
   <operation name="harvest">
-    Read: operations/harvest.md, standards/mvi.md, guides/workflows.md
+    Read: operations/harvest.md, standards/mvi.md
   </operation>
   
   <operation name="compact">
@@ -167,19 +167,19 @@ When invoked without arguments: `/context`
   </operation>
   
   <operation name="extract">
-    Read: operations/extract.md, standards/mvi.md, guides/compact.md, guides/workflows.md
+    Read: operations/extract.md, standards/mvi.md, guides/compact.md
   </operation>
   
   <operation name="organize">
-    Read: operations/organize.md, standards/structure.md, guides/workflows.md
+    Read: operations/organize.md, standards/structure.md
   </operation>
   
   <operation name="update">
-    Read: operations/update.md, guides/workflows.md, standards/mvi.md
+    Read: operations/update.md, standards/mvi.md
   </operation>
   
   <operation name="error">
-    Read: operations/error.md, standards/templates.md, guides/workflows.md
+    Read: operations/error.md, standards/templates.md
   </operation>
   
   <operation name="create">

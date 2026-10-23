@@ -261,7 +261,7 @@ function cmdBlocked(feature?: string): void {
   }
 }
 
-function cmdComplete(feature: string, seq: string, summary: string): void {
+function cmdComplete(feature: string, seq: string, summary: string, force = false): void {
   if (summary.length > 200) {
     console.log('Error: Summary must be max 200 characters');
     process.exit(1);
@@ -275,17 +275,49 @@ function cmdComplete(feature: string, seq: string, summary: string): void {
     process.exit(1);
   }
 
+  // Completing twice would overwrite the original completion record.
+  if (subtask.status === 'completed') {
+    console.log(`\n⚠ ${feature}/${seq} is already completed — nothing to do.`);
+    console.log(`  Completed at: ${subtask.completed_at}`);
+    console.log(`  Summary: ${subtask.completion_summary}`);
+    return;
+  }
+
+  // Enforce the same dependency contract that next/parallel/blocked rely on.
+  const completedSeqs = new Set(
+    subtasks.filter(s => s.status === 'completed').map(s => s.seq)
+  );
+  const unmet = subtask.depends_on.filter(d => !completedSeqs.has(d));
+  if (unmet.length > 0 && !force) {
+    console.log(`\nError: cannot complete ${feature}/${seq} — unmet dependencies: ${unmet.join(', ')}`);
+    console.log('Complete them first, or pass --force to override.');
+    process.exit(1);
+  }
+  if (unmet.length > 0 && force) {
+    console.log(`\n⚠ Forcing completion despite unmet dependencies: ${unmet.join(', ')}`);
+  }
+
   subtask.status = 'completed';
   subtask.completed_at = new Date().toISOString();
   subtask.completion_summary = summary;
 
   saveSubtask(feature, subtask);
 
-  // Update task.json counts
+  // Update task.json counts and roll the feature status up
   const task = loadTask(feature);
   if (task) {
     const newSubtasks = loadSubtasks(feature);
     task.completed_count = newSubtasks.filter(s => s.status === 'completed').length;
+
+    const allDone = newSubtasks.length > 0 && task.completed_count === newSubtasks.length;
+    if (allDone) {
+      task.status = 'completed';
+      task.completed_at = task.completed_at ?? new Date().toISOString();
+    } else if (task.status === 'completed') {
+      // A reopened subtask means the feature is active again.
+      task.status = 'active';
+      task.completed_at = null;
+    }
     saveTask(feature, task);
   }
 
@@ -294,6 +326,9 @@ function cmdComplete(feature: string, seq: string, summary: string): void {
 
   if (task) {
     console.log(`  Progress: ${task.completed_count}/${task.subtask_count}`);
+    if (task.status === 'completed') {
+      console.log(`  🎉 All subtasks complete — feature marked completed.`);
+    }
   }
 }
 
@@ -519,13 +554,16 @@ switch (command) {
   case 'blocked':
     cmdBlocked(args[0]);
     break;
-  case 'complete':
-    if (args.length < 3) {
-      console.log('Usage: complete <feature> <seq> "summary"');
+  case 'complete': {
+    const force = args.includes('--force');
+    const rest = args.filter(a => a !== '--force');
+    if (rest.length < 3) {
+      console.log('Usage: complete <feature> <seq> "summary" [--force]');
       process.exit(1);
     }
-    cmdComplete(args[0], args[1], args.slice(2).join(' '));
+    cmdComplete(rest[0], rest[1], rest.slice(2).join(' '), force);
     break;
+  }
   case 'validate':
     cmdValidate(args[0]);
     break;
