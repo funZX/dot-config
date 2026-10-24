@@ -20,26 +20,27 @@
 ## 7-Stage Workflow
 
 ### Stage 1: Read Source
+**Action**: Read and analyze source material
+
+**Example**:
 ```
 /context extract from https://react.dev/hooks
-  ↓
 Agent: "Reading source (8,500 lines)...
 Analyzing content for extractable items..."
 ```
-
-**Action**: Read and analyze source material
 
 ---
 
 ### Stage 2: Analyze & Categorize
 **Action**: Extract and categorize content by function
 
-**Categorization**:
-- Design decisions → `concepts/`
-- Working code → `examples/`
-- Step-by-step workflows → `guides/`
-- Reference data (commands, paths) → `lookup/`
-- Errors/gotchas → `errors/`
+| Content Type | Target |
+|--------------|--------|
+| Design decisions | concepts/ |
+| Working code | examples/ |
+| Step-by-step workflows | guides/ |
+| Reference data | lookup/ |
+| Errors/gotchas | errors/ |
 
 **Output**: List of extractable items with previews
 
@@ -52,25 +53,16 @@ Analyzing content for extractable items..."
 ```
 Found 12 extractable items from {source}:
 
-Concepts (8):
-  ✓ [A] useState - State management hook
-  ✓ [B] useEffect - Side effects hook
-  ... (6 more)
-
-Errors (4):
-  ✓ [I] Hooks called conditionally
-  ✓ [J] Hooks in loops
-  ... (2 more)
+Concepts (8): [A] useState [B] useEffect ... (6 more)
+Errors (4): [I] Hooks called conditionally [J] Hooks in loops ... (2 more)
 
 Which category?
-  [1] development/
-  [2] core/
-  [3] Create new category: ___
+  [1] development/  [2] core/  [3] Create new: ___
 
-Select items (A B I or 'all') + category (1/2/3):
+Select items (A B I or 'all') + category (1/2/3): _
 ```
 
-**Validation**: MUST wait for user input before proceeding
+**Validation**: MUST wait for user input
 
 ---
 
@@ -86,38 +78,23 @@ Extraction Plan: development/
 CREATE (new files):
   concepts/use-state.md (45 lines)
   concepts/use-effect.md (52 lines)
-  concepts/use-context.md (38 lines)
-  ... (6 more)
   guides/custom-hooks.md (87 lines)
-  guides/debugging-hooks.md (65 lines)
 
 ADD TO (existing files):
   errors/react-hooks-errors.md (98 → 124 lines)
     + 4 new error entries
 
-⚠️  CONFLICT (file already exists):
-  concepts/use-memo.md already exists (42 lines)
-    Options:
-      [A] Skip — keep existing file
-      [B] Overwrite — replace with extracted version
-      [C] Merge — add new content to existing file (42 → 58 lines)
-    Choose [A/B/C]: _
+⚠️ CONFLICT:
+  concepts/use-memo.md exists (42 lines)
+  Options: [A] Skip [B] Overwrite [C] Merge
+  Choose [A/B/C]: _
 
 NAVIGATION UPDATE:
-  development/navigation.md
-    + 9 new entries in Concepts table
-    + 2 new entries in Guides table
-    + 1 updated entry in Errors table
+  development/navigation.md (+12 entries)
 
-Total: 12 files, ~650 lines
-
-Preview content? (type filename, 'all' for batch, or 'skip')
+Preview content? (filename/'all'/skip)
 Approve? [y/n/edit]: _
 ```
-
-**If user types 'all'**: Show first 10 lines of each file in sequence
-**If user types filename**: Show full content of that file
-**If user types 'skip'**: Proceed to approval
 
 **Validation**: MUST get approval before proceeding
 
@@ -136,11 +113,11 @@ Approve? [y/n/edit]: _
 
 ---
 
-### Stage 6: Update Navigation (preview included in Stage 4)
+### Stage 6: Update Navigation
 **Action**: Update navigation.md and add cross-references
 
 **Process**:
-1. Update category navigation.md with new files (as previewed in Stage 4)
+1. Update category navigation.md with new files
 2. Add priority levels (critical/high/medium/low)
 3. Add cross-references between related files
 4. Update "Last Updated" dates
@@ -152,44 +129,34 @@ Approve? [y/n/edit]: _
 
 **Format**:
 ```
-✅ Extracted X items into {category}
-📄 Created Y files
-📊 Updated {category}/README.md
+✅ Extracted {X} items into {category}
+📄 Created {Y} files
+📊 Updated {category}/navigation.md
 
 Files created:
-  - {category}/concepts/ (N files)
-  - {category}/examples/ (N files)
-  - {category}/errors/ (N files)
+  - {category}/concepts/ ({N} files)
+  - {category}/examples/ ({N} files)
+  - {category}/errors/ ({N} files)
 ```
 
 ---
 
 ## Examples
 
-### Extract from URL
-```bash
-/context extract from https://react.dev/hooks
-```
+**Extract from URL**: `/context extract from https://react.dev/hooks`
 
-### Extract from Local Docs
-```bash
-/context extract from docs/api.md
-/context extract from docs/architecture/
-```
+**Extract from Local Docs**: `/context extract from docs/api.md`
 
-### Extract from Code
-```bash
-/context extract from src/utils/
-```
+**Extract from Code**: `/context extract from src/utils/`
 
 ---
 
 ## Success Criteria
 
 - [ ] All files <200 lines?
-- [ ] MVI format applied (1-3 sentences, 3-5 points, example, reference)?
+- [ ] MVI format applied?
 - [ ] Files in correct function folders?
-- [ ] README.md updated?
+- [ ] navigation.md updated?
 - [ ] Cross-references added?
 - [ ] User approved before creation?
 

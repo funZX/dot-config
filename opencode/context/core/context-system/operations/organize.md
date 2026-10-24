@@ -2,7 +2,7 @@
 
 # Organize Operation
 
-**Purpose**: Restructure flat context files into function-based folder structure
+**Purpose**: Restructure flat context files into function-based folders (concepts/examples/guides/lookup/errors)
 
 **Last Updated**: 2026-01-06
 
@@ -10,7 +10,7 @@
 
 ## When to Use
 
-- Migrating from flat structure to function-based
+- Migrating from flat to function-based structure
 - Cleaning up disorganized context directories
 - Splitting ambiguous files into proper categories
 - Resolving duplicate/conflicting files
@@ -22,19 +22,20 @@
 ### Stage 1: Scan
 **Action**: Scan category for all files and detect structure
 
-**Output**: List of files with current structure type (flat vs organized)
+**Output**: File list with structure type (flat vs organized)
 
 ---
 
 ### Stage 2: Categorize
 **Action**: Categorize each file by function
 
-**Categorization Rules**:
-- Explains concept? → `concepts/`
-- Shows working code? → `examples/`
-- Step-by-step instructions? → `guides/`
-- Reference data (tables, commands)? → `lookup/`
-- Errors/issues? → `errors/`
+| Content Type | Target |
+|--------------|--------|
+| Explains concept | concepts/ |
+| Shows working code | examples/ |
+| Step-by-step | guides/ |
+| Reference data | lookup/ |
+| Errors/issues | errors/ |
 
 **Output**: Categorization plan with flagged ambiguous files
 
@@ -48,28 +49,16 @@
 Organizing {category}/ (23 files, flat structure)
 
 Clear categorization (18 files):
-  concepts/ (8):
-    ✓ authentication.md → concepts/authentication.md
-  
-  examples/ (5):
-    ✓ jwt-example.md → examples/jwt-example.md
+  ✓ authentication.md → concepts/authentication.md
+  ✓ jwt-example.md → examples/jwt-example.md
 
-Ambiguous files (5 - need your input):
-  
-  [?] api-design.md (contains concepts AND steps)
-      → [A] Split: concepts/api-design.md + guides/api-design-guide.md
-      → [B] Keep as concepts/api-design.md
-      → [C] Keep as guides/api-design.md
+Ambiguous files (5):
+  [?] api-design.md → [A] Split [B] Keep as concepts [C] Keep as guides
 
 Conflicts (2):
-  
-  [!] authentication.md → concepts/auth.md
-      Target already exists (120 lines)
-      → [J] Merge into existing
-      → [K] Rename to concepts/authentication-v2.md
-      → [L] Skip (keep flat)
+  [!] auth.md exists → [J] Merge [K] Rename [L] Skip
 
-Select resolutions (A J or 'auto'):
+Select resolutions (A J or 'auto'): _
 ```
 
 **Validation**: MUST wait for user input
@@ -81,33 +70,15 @@ Select resolutions (A J or 'auto'):
 
 **Format**:
 ```
-Preview changes:
+CREATE directories: concepts/ examples/ guides/ lookup/ errors/
+MOVE files (18): auth.md → concepts/auth.md
+SPLIT files (3): api-design.md → concepts/ + guides/
+MERGE files (2): auth.md → existing (merge)
+UPDATE: navigation.md, fix 47 references
 
-CREATE directories:
-  {category}/concepts/
-  {category}/examples/
-  {category}/guides/
-  {category}/lookup/
-  {category}/errors/
-
-MOVE files (18):
-  authentication.md → concepts/authentication.md
-  ... (17 more)
-
-SPLIT files (3):
-  api-design.md → concepts/api-design.md + guides/api-design-guide.md
-
-MERGE files (2):
-  authentication.md → concepts/auth.md (merge content)
-
-UPDATE:
-  {category}/README.md
-  Fix 47 internal references
-
-Dry-run? (yes/no/show-diff):
+Dry-run? (yes/no/show-diff): _
+Approve? [y/n]: _
 ```
-
-**Dry-run**: Simulates changes without executing
 
 **Validation**: MUST get approval before proceeding
 
@@ -117,8 +88,6 @@ Dry-run? (yes/no/show-diff):
 **Action**: Create backup before making changes
 
 **Location**: `.tmp/backup/organize-{category}-{timestamp}/`
-
-**Purpose**: Enable rollback if needed
 
 ---
 
@@ -137,7 +106,7 @@ Dry-run? (yes/no/show-diff):
 **Action**: Update navigation and fix references
 
 **Process**:
-1. Update README.md with navigation tables
+1. Update navigation.md with navigation tables
 2. Fix all internal references to moved files
 3. Validate all links work
 4. Update "Last Updated" dates
@@ -149,13 +118,11 @@ Dry-run? (yes/no/show-diff):
 
 **Format**:
 ```
-✅ Organized X files into function folders
-📁 Created Y new folders
-🔀 Split Z ambiguous files
-🔗 Fixed N references
+✅ Organized {X} files into function folders
+📁 Created {Y} new folders
+🔀 Split {Z} ambiguous files
+🔗 Fixed {N} references
 💾 Backup: .tmp/backup/organize-{category}-{timestamp}/
-
-Rollback available if needed.
 ```
 
 ---
@@ -165,53 +132,34 @@ Rollback available if needed.
 ### Ambiguous Files
 File fits multiple categories (e.g., has concepts AND steps)
 
-**Options**:
-- Split into multiple files (recommended)
-- Keep in primary category
-- User decides which is primary
+**Options**: Split (recommended) | Keep primary category | User decides
 
 ### Duplicate Targets
 Target file already exists
 
-**Options**:
-- Merge content into existing file
-- Rename to avoid conflict (e.g., -v2)
-- Skip (keep in flat structure)
+**Options**: Merge | Rename (e.g., -v2) | Skip (keep flat)
 
 ### Auto-Resolution
-Agent suggests best option based on:
-- File size
-- Content analysis
-- Existing structure
+Agent suggests best option based on file size, content, existing structure
 
 ---
 
 ## Examples
 
-### Organize Flat Directory
-```bash
-/context organize development/
-```
+**Organize Flat Directory**: `/context organize development/`
 
-### Dry-Run First
-```bash
-/context organize development/ --dry-run
-```
+**Dry-Run First**: `/context organize development/ --dry-run`
 
-### Organize Multiple
-```bash
-/context organize development/
-/context organize core/
-```
+**Organize Multiple**: `/context organize development/` then `/context organize core/`
 
 ---
 
 ## Success Criteria
 
-- [ ] All files in function folders (not flat)?
+- [ ] All files in function folders?
 - [ ] Ambiguous files resolved?
 - [ ] Conflicts handled?
-- [ ] README.md created/updated?
+- [ ] navigation.md created/updated?
 - [ ] All references fixed?
 - [ ] Backup created?
 - [ ] User approved changes?

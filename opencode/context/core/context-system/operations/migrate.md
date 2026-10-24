@@ -2,68 +2,37 @@
 
 # Context Migrate Operation
 
-**Purpose**: Copy context files from global (`~/.config/opencode/context/`) to local (`.opencode/context/`) so they're project-specific and git-committed.
+**Purpose**: Copy project-intelligence from global (`~/.config/opencode/context/`) to local (`.opencode/context/`) for git version control and team sharing.
 
 **Last Updated**: 2026-02-06
 
 ---
 
-## Core Problem
-
-Users who installed OAC globally have project-intelligence files at `~/.config/opencode/context/project-intelligence/`. These files are project-specific patterns but aren't committed to git or shared with the team.
-
-**Solution**: Migrate project-intelligence from global → local, so patterns are version-controlled and team-shared.
-
----
-
 ## 4-Stage Workflow
 
-<workflow id="migrate" enforce="@critical_rules">
-
 ### Stage 1: Detect Sources
-
-Scan for context files in the global config directory:
 
 ```
 Scanning global context...
 
-Global location: ~/.config/opencode/context/
+Global: ~/.config/opencode/context/project-intelligence/
+  technical-domain.md (1.2 KB, v1.3)
+  navigation.md (800 bytes, v1.0)
+  business-domain.md (1.5 KB, v1.1)
 
-Found:
-  project-intelligence/
-    technical-domain.md (1.2 KB, Version: 1.3)
-    navigation.md (800 bytes, Version: 1.0)
-    business-domain.md (1.5 KB, Version: 1.1)
-
-Local location: .opencode/context/
-
+Local: .opencode/context/project-intelligence/
 Status: No local project-intelligence/ found
 ```
 
-**If no global context found:**
-```
-No global context found at ~/.config/opencode/context/
-
-Nothing to migrate. Use /add-context to create project intelligence.
-```
-→ Exit
-
-**If no global project-intelligence found (but other global context exists):**
-```
-Global context found at ~/.config/opencode/context/ but no project-intelligence/ directory.
-
-Only project-intelligence files are migrated (project-specific patterns).
-Core standards stay in global (they're universal, not project-specific).
-
-Nothing to migrate. Use /add-context to create project intelligence.
-```
-→ Exit
+**Exit conditions:**
+- No global context → "Use `/add-context` to create project intelligence"
+- No `project-intelligence/` → "Only project-specific files migrate, not core standards"
 
 ---
 
-### Stage 2: Check for Conflicts
+### Stage 2: Check Conflicts
 
-If local `.opencode/context/project-intelligence/` already exists:
+If local `project-intelligence/` exists:
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -71,50 +40,19 @@ Conflict: Local project-intelligence already exists
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Global files:                              Local files:
-  technical-domain.md                        technical-domain.md
-    Version: 1.3, Updated: 2026-01-15         Version: 1.0, Updated: 2026-02-01
-  navigation.md                              navigation.md
-    Version: 1.0, Updated: 2026-01-10         Version: 1.0, Updated: 2026-02-01
-  business-domain.md                         (not present locally)
-    Version: 1.1, Updated: 2026-01-12
+  technical-domain.md (v1.3)                technical-domain.md (v1.0)
+  navigation.md (v1.0)                      navigation.md (v1.0)
+  business-domain.md (v1.1)                 (not present)
 
 Options:
-  1. Skip existing — only copy files that don't exist locally
-     → Will copy: business-domain.md
-     → Will skip: technical-domain.md, navigation.md (local kept)
-
-  2. Overwrite all — replace local with global versions
-     → Will overwrite: technical-domain.md, navigation.md
-     → Will copy: business-domain.md
-     → Local backup created first
-
+  1. Skip existing — copy only missing files
+  2. Overwrite all — replace local with global (backup first)
   3. Cancel
 
 Choose [1/2/3]: _
 ```
 
-**If user chooses 2 (Overwrite), show content diff first:**
-```
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Diff: technical-domain.md
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Local (current):                    Global (incoming):
-  Version: 1.0                        Version: 1.3
-  Tech Stack: Next.js 14              Tech Stack: Next.js 15  ← different
-  API: basic validation                API: Zod validation     ← different
-  Component: same                      Component: same
-  Naming: same                         Naming: same
-
-Show full diff? [y/n]: _
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Backup local files to .tmp/backup/migrate-{timestamp}/ before overwriting?
-[y/n] (default: y): _
-```
-
-If no conflicts → proceed directly to Stage 3.
+**If overwrite chosen**: Show version diff, ask about backup
 
 ---
 
@@ -125,8 +63,8 @@ If no conflicts → proceed directly to Stage 3.
 Migration Plan
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Will copy from: ~/.config/opencode/context/project-intelligence/
-Will copy to:   .opencode/context/project-intelligence/
+From: ~/.config/opencode/context/project-intelligence/
+To:   .opencode/context/project-intelligence/
 
 Files to copy:
   ✓ technical-domain.md (1.2 KB)
@@ -142,9 +80,9 @@ Proceed? [y/n]: _
 ```
 
 **Actions on approval:**
-1. Create `.opencode/context/project-intelligence/` if it doesn't exist
-2. Copy each file from global → local
-3. Validate copied files (frontmatter, MVI compliance)
+1. Create directory if needed
+2. Copy files
+3. Validate frontmatter and MVI compliance
 
 ---
 
@@ -157,15 +95,9 @@ Migration Complete
 
 Copied 3 files to .opencode/context/project-intelligence/
 
-  ✓ technical-domain.md
-  ✓ navigation.md
-  ✓ business-domain.md
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
 Clean up global project-intelligence?
 
-The global files are no longer needed for THIS project (local takes priority).
+Global files no longer needed for THIS project (local takes priority).
 Keeping them means they still apply as fallback to other projects.
 
   1. Keep global files (safe default)
@@ -174,30 +106,25 @@ Keeping them means they still apply as fallback to other projects.
 Choose [1/2] (default: 1): _
 ```
 
-**If user chooses 2 (Remove):**
-- Delete `~/.config/opencode/context/project-intelligence/` only
-- Do NOT touch `~/.config/opencode/context/core/` or any other global context
-
-</workflow>
+**If remove chosen**: Delete `~/.config/opencode/context/project-intelligence/` only
 
 ---
 
-## What Gets Migrated
+## Migration Scope
 
 | Migrated (project-specific) | NOT Migrated (universal) |
 |---|---|
-| `project-intelligence/` | `core/standards/` |
-| `project-intelligence/technical-domain.md` | `core/context-system/` |
-| `project-intelligence/business-domain.md` | `core/workflows/` |
-| `project-intelligence/navigation.md` | `core/guides/` |
-| `project-intelligence/decisions-log.md` | Any other `core/` files |
-| `project-intelligence/living-notes.md` | |
+| `project-intelligence/*` | `core/standards/` |
+| business-domain.md | `core/context-system/` |
+| technical-domain.md | `core/workflows/` |
+| navigation.md | `core/guides/` |
+| decisions-log.md | Any `core/` files |
 
-**Rationale**: Project intelligence is project-specific (YOUR tech stack, YOUR patterns). Core standards are universal (code quality, documentation standards) and should stay global.
+**Rationale**: Project intelligence = YOUR patterns (git-committed, team-shared). Core standards = universal (stay global).
 
 ---
 
-## Error Handling
+## Errors
 
 **Permission denied:**
 ```
@@ -209,7 +136,7 @@ Check directory permissions and try again.
 ```
 No global OpenCode config found at ~/.config/opencode/
 
-If you installed to a custom location, set OPENCODE_INSTALL_DIR:
+If custom location, set OPENCODE_INSTALL_DIR:
   export OPENCODE_INSTALL_DIR=/your/custom/path
   /context migrate
 ```
@@ -220,4 +147,4 @@ If you installed to a custom location, set OPENCODE_INSTALL_DIR:
 
 - `/add-context` — Create new project intelligence (interactive wizard)
 - `/context harvest` — Extract knowledge from summaries
-- Context navigation: `.opencode/context/core/navigation.md`
+- `.opencode/context/core/navigation.md` — Core navigation
