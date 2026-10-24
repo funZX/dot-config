@@ -1,8 +1,10 @@
-<!-- Context: core/navigation | Priority: critical | Version: 1.0 | Updated: 2026-02-15 -->
+<!-- Context: core/navigation | Priority: critical | Version: 1.1 | Updated: 2026-10-24 -->
 
 # Context System
 
 **Purpose**: Documentation for the context system architecture and operations
+
+**Last Updated**: 2026-10-24 (MVI compaction complete)
 
 ---
 
@@ -26,23 +28,48 @@ core/context-system/
 
 ## Quick Routes
 
-| Task | Path |
-|------|------|
-| **Understand context system** | `../context-system.md` |
-| **Operations & procedures** | `operations/navigation.md` |
-| **Implementation guides** | `guides/navigation.md` |
-| **Standards & templates** | `standards/navigation.md` |
-| **Examples** | `examples/navigation.md` |
-| **Migrate global → local** | `operations/migrate.md` |
+| Task | Path | Lines |
+|------|------|-------|
+| **Understand context system** | `../context-system.md` | 51 ✅ |
+| **Operations & procedures** | `operations/` | 45-171 ✅ |
+| **Implementation guides** | `guides/` | 122-160 ✅ |
+| **Standards & templates** | `standards/` | 28-151 ✅ |
+| **Examples** | `examples/navigation-examples.md` | 92 ✅ |
+| **Migrate global → local** | `operations/migrate.md` | 150 ✅ |
+
+**All files MVI compliant** (<200 lines) ✅
 
 ---
 
 ## By Type
 
-**Examples** → Working examples of navigation files  
-**Guides** → Step-by-step guides for working with context  
-**Operations** → How to operate and maintain the context system  
-**Standards** → Templates and standards for context files
+**Examples** → Working examples of navigation files (92 lines) ✅  
+**Guides** → Step-by-step guides for working with context (122-160 lines) ✅  
+**Operations** → How to operate and maintain the context system (45-171 lines) ✅  
+**Standards** → Templates and standards for context files (28-151 lines) ✅
+
+---
+
+## MVI Status (2026-10-24)
+
+**100% compliant** - All files under 200 lines
+
+| Standards | Lines | Status |
+|-----------|-------|--------|
+| templates.md | 28 | ✅ Compacted from 398 |
+| structure.md | 49 | ✅ Compacted from 240 |
+| frontmatter.md | 66 | ✅ |
+| mvi.md | 151 | ✅ |
+| codebase-references.md | 145 | ✅ |
+
+| Operations | Lines | Status |
+|------------|-------|--------|
+| update.md | 45 | ✅ Compacted from 236 |
+| error.md | 144 | ✅ |
+| harvest.md | 146 | ✅ |
+| organize.md | 171 | ✅ |
+| extract.md | 168 | ✅ |
+| migrate.md | 150 | ✅ |
 
 ---
 
